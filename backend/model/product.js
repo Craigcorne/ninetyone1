@@ -15,7 +15,7 @@ const productSchema = new mongoose.Schema({
   },
   tags: {
     type: String,
-    required: [true, "Please enter your product stock!"],
+    required: [true, "Please enter your product tags!"],
   },
   originalPrice: {
     type: Number,
@@ -28,16 +28,19 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Please enter your product stock!"],
   },
+  sold_out: {
+    type: Number,
+    default: 0,
+  },
   condition: {
     type: String,
-    required: [true, "Please enter your product condition"],
+    required: [true, "Please enter your product condition!"],
   },
   images: [
     {
       type: String,
     },
   ],
-
   reviews: [
     {
       user: {
@@ -69,10 +72,21 @@ const productSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
-  sold_out: {
-    type: Number,
-    default: 0,
-  },
+  variations: [
+    {
+      size: {
+        type: String,
+      },
+      stock: {
+        type: Number,
+        required: [true, "Please enter the stock for this variation!"],
+      },
+      sold_out: {
+        type: Number,
+        default: 0,
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now(),

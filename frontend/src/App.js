@@ -62,6 +62,9 @@ import ForgotPassword from "./pages/ForgetPasswordPage";
 import ShopForgotPassword from "./components/Shop/ShopForgotPassword";
 import ResetPassword from "./pages/ResetPasswordPage";
 import ShopResetPassword from "./components/Shop/ShopResetPassword";
+import CompareProducts from "./pages/CompareProducts";
+import AdminCategories from "./pages/AdminCategories";
+import CreateCarouselPage from "./components/Admin/CreateCarousel";
 
 const App = () => {
   useEffect(() => {
@@ -78,6 +81,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/sign-up" element={<SignupPage />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/compare-products" element={<CompareProducts />} />
         <Route
           path="/activation/:activation_token"
           element={<ActivationPage />}
@@ -290,10 +294,26 @@ const App = () => {
           }
         />
         <Route
+          path="/admin-carousel"
+          element={
+            <ProtectedAdminRoute>
+              <CreateCarouselPage />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
           path="/admin-products"
           element={
             <ProtectedAdminRoute>
               <AdminDashboardProducts />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/categories"
+          element={
+            <ProtectedAdminRoute>
+              <AdminCategories />
             </ProtectedAdminRoute>
           }
         />
@@ -324,7 +344,7 @@ const App = () => {
       </Routes>
 
       <ToastContainer
-        position="bottom-center"
+        position="bottom-left"
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}

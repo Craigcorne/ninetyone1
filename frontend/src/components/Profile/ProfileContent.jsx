@@ -540,8 +540,7 @@ const Address = () => {
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [zipCode, setZipCode] = useState();
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
+  const [town, setTown] = useState("");
   const [addressType, setAddressType] = useState("");
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -564,21 +563,11 @@ const Address = () => {
     if (addressType === "" || country === "" || city === "") {
       toast.error("Please fill all the fields!");
     } else {
-      dispatch(
-        updatUserAddress(
-          country,
-          city,
-          address1,
-          address2,
-          zipCode,
-          addressType
-        )
-      );
+      dispatch(updatUserAddress(country, city, town, zipCode, addressType));
       setOpen(false);
       setCountry("");
       setCity("");
-      setAddress1("");
-      setAddress2("");
+      setTown("");
       setZipCode(null);
       setAddressType("");
     }
@@ -658,23 +647,13 @@ const Address = () => {
                   </div>
 
                   <div className="w-full pb-2">
-                    <label className="block pb-2">Address 1</label>
+                    <label className="block pb-2">Town</label>
                     <input
                       type="address"
                       className={`${styles.input}`}
                       required
-                      value={address1}
-                      onChange={(e) => setAddress1(e.target.value)}
-                    />
-                  </div>
-                  <div className="w-full pb-2">
-                    <label className="block pb-2">Address 2</label>
-                    <input
-                      type="address"
-                      className={`${styles.input}`}
-                      required
-                      value={address2}
-                      onChange={(e) => setAddress2(e.target.value)}
+                      value={town}
+                      onChange={(e) => setTown(e.target.value)}
                     />
                   </div>
 
@@ -751,7 +730,7 @@ const Address = () => {
             </div>
             <div className="pl-8 flex items-center">
               <h6 className="text-[12px] 800px:text-[unset]">
-                {item.address1} {item.address2}
+                {item.country} {item.town} {item.zipCode}
               </h6>
             </div>
             <div className="pl-8 flex items-center">

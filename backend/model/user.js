@@ -29,12 +29,10 @@ const userSchema = new mongoose.Schema({
       city: {
         type: String,
       },
-      address1: {
+      town: {
         type: String,
       },
-      address2: {
-        type: String,
-      },
+
       zipCode: {
         type: Number,
       },

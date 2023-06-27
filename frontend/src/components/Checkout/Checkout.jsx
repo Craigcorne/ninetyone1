@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 
 const Checkout = () => {
   const { user } = useSelector((state) => state.user);
+  const [userInfo, setUserInfo] = useState(false);
   const { cart } = useSelector((state) => state.cart);
   const [country, setCountry] = useState("");
   const [county, setCounty] = useState("");
@@ -105,6 +106,8 @@ const Checkout = () => {
             user={user}
             country={country}
             setCountry={setCountry}
+            userInfo={userInfo}
+            setUserInfo={setUserInfo}
             county={county}
             setCounty={setCounty}
             town={town}
@@ -139,8 +142,12 @@ const ShippingInfo = ({
   setCountry,
   county,
   setCounty,
+  userInfo,
+  setUserInfo,
   town,
   setTown,
+  zipCode,
+  setZipCode,
 }) => {
   return (
     <div className="w-full 800px:w-[95%] bg-white rounded-md p-5 pb-8">
@@ -231,6 +238,32 @@ const ShippingInfo = ({
 
         <div></div>
       </form>
+      <h5
+        className="text-[18px] cursor-pointer inline-block"
+        onClick={() => setUserInfo(!userInfo)}
+      >
+        Choose From saved address
+      </h5>
+      {userInfo && (
+        <div>
+          {user &&
+            user.addresses.map((item, index) => (
+              <div className="w-full flex mt-1">
+                <input
+                  type="checkbox"
+                  className="mr-3"
+                  value={item.addressType}
+                  onClick={() =>
+                    setTown(item.town) ||
+                    setCountry(item.country) ||
+                    setCounty(item.city)
+                  }
+                />
+                <h2>{item.addressType}</h2>
+              </div>
+            ))}
+        </div>
+      )}
     </div>
   );
 };

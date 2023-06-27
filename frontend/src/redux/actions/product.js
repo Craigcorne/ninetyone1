@@ -94,3 +94,44 @@ export const getAllProducts = () => async (dispatch) => {
     });
   }
 };
+
+// Action Types
+export const UPDATE_PRODUCT_REQUEST = "UPDATE_PRODUCT_REQUEST";
+export const UPDATE_PRODUCT_SUCCESS = "UPDATE_PRODUCT_SUCCESS";
+export const UPDATE_PRODUCT_FAILURE = "UPDATE_PRODUCT_FAILURE";
+
+// Action Creators
+export const updateProductRequest = () => {
+  return {
+    type: UPDATE_PRODUCT_REQUEST,
+  };
+};
+
+export const updateProductSuccess = () => {
+  return {
+    type: UPDATE_PRODUCT_SUCCESS,
+  };
+};
+
+export const updateProductFailure = (error) => {
+  return {
+    type: UPDATE_PRODUCT_FAILURE,
+    payload: error,
+  };
+};
+
+export const updateProduct = (productId, updatedProduct) => {
+  return (dispatch) => {
+    dispatch(updateProductRequest());
+    axios
+      .put(`/api/products/${productId}`, updatedProduct)
+      .then((response) => {
+        dispatch(updateProductSuccess());
+        // Handle any additional logic or update the state as needed
+      })
+      .catch((error) => {
+        dispatch(updateProductFailure(error.message));
+        // Handle any error scenarios or display error messages
+      });
+  };
+};
