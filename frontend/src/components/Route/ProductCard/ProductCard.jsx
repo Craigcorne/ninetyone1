@@ -104,7 +104,7 @@ const ProductCard = ({ data, isEvent }) => {
   return (
     <>
       <div className=" md:grid-cols-1 gap-2">
-        <div className="w-full h-full bg-white rounded-lg shadow-sm p-3 relative cursor-pointer">
+        <div className="w-full min-h-[370px] max-h-[370px] mb-2 bg-white rounded-lg shadow-sm p-3 relative cursor-pointer">
           <div className="flex justify-end"></div>
           <Link
             to={`${
