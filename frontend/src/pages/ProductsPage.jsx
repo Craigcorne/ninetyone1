@@ -79,7 +79,6 @@ const ProductsPage = () => {
             >
               <label className="mr-2">Sort By:</label>
               <select value={sortBy} onChange={handleSortChange}>
-                <option value="">Select</option>
                 <option value="priceLowToHigh">Price: Low to High</option>
                 <option value="priceHighToLow">Price: High to Low</option>
                 <option value="ratingHighToLow">Rating: High to Low</option>
@@ -94,7 +93,6 @@ const ProductsPage = () => {
             >
               <label className="mr-2">Category:</label>
               <select value={selectedCategory} onChange={handleCategoryChange}>
-                <option value="Choose a category">Choose a category</option>
                 <option value="">All</option>
                 {categoriesData &&
                   categoriesData.map((i) => (
@@ -105,7 +103,7 @@ const ProductsPage = () => {
               </select>
             </div>
 
-            <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-12">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-12">
               {data &&
                 data.map((i, index) => <ProductCard data={i} key={index} />)}
             </div>

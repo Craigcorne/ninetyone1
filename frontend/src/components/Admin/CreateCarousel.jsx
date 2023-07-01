@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { server } from "../../server";
+import Header from "../Layout/Header";
 
 const CreateCarouselPage = () => {
   const [imageUrl, setImageUrl] = useState("");
@@ -30,6 +31,7 @@ const CreateCarouselPage = () => {
 
   return (
     <div>
+      <Header />
       <h1>Create Carousel Item</h1>
       <form onSubmit={handleFormSubmit}>
         <div>

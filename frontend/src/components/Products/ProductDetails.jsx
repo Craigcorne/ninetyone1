@@ -165,8 +165,8 @@ const ProductDetails = ({ data }) => {
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
   const [select, setSelect] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("");
-  const [sizes, setSizes] = useState([]);
+  // const [selectedSize, setSelectedSize] = useState("");
+  // const [sizes, setSizes] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -177,8 +177,8 @@ const ProductDetails = ({ data }) => {
       setClick(false);
     }
     if (data && data.sizes) {
-      setSizes(data.sizes);
-      setSelectedSize(data.sizes[0]);
+      // setSizes(data.sizes);
+      // setSelectedSize(data.sizes[0]);
     }
   }, [data, wishlist]);
 
@@ -216,7 +216,8 @@ const ProductDetails = ({ data }) => {
       if (data.stock < 1) {
         toast.error("Product stock limited!");
       } else {
-        const cartData = { ...data, qty: count, size: selectedSize };
+        const cartData = { ...data, qty: count };
+        // size: selectedSize
         dispatch(addTocart(cartData));
         toast.success("Item added to cart successfully!");
       }
@@ -289,7 +290,8 @@ const ProductDetails = ({ data }) => {
                         <img
                           src={`${backend_url}${i}`}
                           alt=""
-                          className="h-[200px] overflow-hidden mr-3 mt-3"
+                          className="h-[100px] w-[100px] object-cover mr-3 mt-3"
+                          // className="h-[200px] overflow-hidden mr-3 mt-3"
                           onClick={() => setSelect(index)}
                         />
                       </div>

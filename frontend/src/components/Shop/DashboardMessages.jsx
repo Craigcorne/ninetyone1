@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
-import { backend_url, server } from "../../server";
+
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
@@ -9,6 +9,7 @@ import styles from "../../styles/styles";
 import { TfiGallery } from "react-icons/tfi";
 import socketIO from "socket.io-client";
 import { format } from "timeago.js";
+import { backend_url, server } from "../../server";
 const ENDPOINT = "https://localhost:4000/";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
@@ -298,8 +299,8 @@ const MessageList = ({
     >
       <div className="relative">
         <img
-          src={`${backend_url}${user?.avatar}`}
-          // src={user?.avatar}
+          // src={`${backend_url}${userData?.avatar}`}
+          src={user?.avatar}
           alt=""
           className="w-[50px] h-[50px] rounded-full"
         />

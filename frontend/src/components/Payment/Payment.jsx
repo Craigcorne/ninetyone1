@@ -19,6 +19,7 @@ const Payment = () => {
 
   const [orderData, setOrderData] = useState([]);
   const [open, setOpen] = useState(false);
+  const [loading1, setLoading1] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,7 +28,37 @@ const Payment = () => {
     setOrderData(orderData);
   }, []);
 
-  const createOrder = (data, actions) => {
+  const fetchExchangeRate = async () => {
+    const apiKey = "de9aceb0cab6489f996549302a9d7298"; // Replace with your actual API key
+    const baseCurrency = "KES"; // Currency you want to convert from
+    const targetCurrency = "USD"; // Currency you want to convert to
+
+    const url = `https://openexchangerates.org/api/latest.json?app_id=${apiKey}&base=${baseCurrency}&symbols=${targetCurrency}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const exchangeRate = data.rates[targetCurrency];
+
+      console.log(
+        `Exchange rate from ${baseCurrency} to ${targetCurrency}: ${exchangeRate}`
+      );
+
+      // Now you can use the exchangeRate to convert your totalPrice
+      const totalPriceKES = orderData?.totalPrice; // Assuming totalPrice is in KES
+      const totalPriceUSD = totalPriceKES / exchangeRate;
+
+      console.log(`Total Price in USD: ${totalPriceUSD}`);
+
+      // Use the totalPriceUSD in your PayPal integration code
+    } catch (error) {
+      console.error("Error fetching exchange rate:", error);
+    }
+  };
+
+  fetchExchangeRate();
+
+  const createOrder = (data, totalPriceUSD, actions) => {
     return actions.order
       .create({
         purchase_units: [
@@ -77,7 +108,7 @@ const Payment = () => {
 
     order.paymentInfo = {
       id: paymentInfo.payer_id,
-      status: "Succeeded",
+      status: "succeeded",
       type: "Paypal",
     };
 
@@ -97,7 +128,7 @@ const Payment = () => {
 
   const cashOnDeliveryHandler = async (e) => {
     e.preventDefault();
-
+    setLoading1(true);
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -107,22 +138,32 @@ const Payment = () => {
     order.paymentInfo = {
       type: "Cash On Delivery",
     };
+    try {
+      await axios
+        .post(`${server}/order/create-order`, order, config)
 
-    await axios
-      .post(`${server}/order/create-order`, order, config)
-      .then((res) => {
-        setOpen(false);
-        navigate("/order/success");
-        toast.success("Order successful!");
-        localStorage.setItem("cartItems", JSON.stringify([]));
-        localStorage.setItem("latestOrder", JSON.stringify([]));
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      });
+        .then(async (res, next) => {
+          setOpen(false);
+          navigate("/order/success");
+          toast.success("Order successful!");
+          localStorage.setItem("cartItems", JSON.stringify([]));
+          localStorage.setItem("latestOrder", JSON.stringify([]));
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+          // await axios.post(`${server}/order/send-order-email`, order, config);
+        });
+      setLoading1(false);
+    } catch (error) {
+      console.log(error);
+      setLoading1(false);
+    }
+
+    setLoading1(false);
   };
+  const mpesaPaymentHandler = async (e) => {
+    e.preventDefault();
 
-  const mpesaPaymentHandler = async (paymentInfo) => {
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -131,7 +172,7 @@ const Payment = () => {
 
     order.paymentInfo = {
       type: "Mpesa",
-      status: "Succeeded",
+      status: "succeeded",
     };
 
     await axios
@@ -159,6 +200,7 @@ const Payment = () => {
             onApprove={onApprove}
             createOrder={createOrder}
             cashOnDeliveryHandler={cashOnDeliveryHandler}
+            loading1={loading1}
             mpesaPaymentHandler={mpesaPaymentHandler}
           />
         </div>
@@ -179,13 +221,12 @@ const mpesaSchema = yup.object({
 });
 const PaymentInfo = ({
   user,
-  mpesaPaymentHandler,
   open,
   setOpen,
   onApprove,
   createOrder,
-  paymentHandler,
   cashOnDeliveryHandler,
+  loading1,
 }) => {
   const [select, setSelect] = useState(1);
   const [orderData, setOrderData] = useState([]);
@@ -194,7 +235,7 @@ const PaymentInfo = ({
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [done, setDone] = useState(false);
+  const [validating, setValidating] = useState(false);
 
   useEffect(() => {
     const orderData = JSON.parse(localStorage.getItem("latestOrder"));
@@ -204,16 +245,16 @@ const PaymentInfo = ({
 
   var reqcount = 0;
   const navigate = useNavigate();
+
   const stkPushQuery = (checkOutRequestID) => {
     const timer = setInterval(() => {
       reqcount += 1;
       if (reqcount === 30) {
         clearInterval(timer);
-
         setLoading(false);
         toast.error("You took too long to pay");
-        setError(true);
         setSuccess(false);
+        setError(true);
         setErrorMessage("You took too long to pay");
         return;
       }
@@ -224,7 +265,7 @@ const PaymentInfo = ({
         .then((response) => {
           if (response.data.ResultCode === "0") {
             setSuccess(false);
-            setDone(true);
+            setValidating(true);
             clearInterval(timer);
             //successfull payment
             setLoading(false);
@@ -250,17 +291,15 @@ const PaymentInfo = ({
                 .then((res) => {
                   setOpen(false);
                   navigate("/order/success");
-                  toast.success(
-                    "Your Payment is Successful Order has been placed"
-                  );
+                  toast.success("Your Payment is Sucessful and order placed");
                   localStorage.setItem("cartItems", JSON.stringify([]));
                   localStorage.setItem("latestOrder", JSON.stringify([]));
                   setTimeout(() => {
                     window.location.reload();
-                  }, 5000);
+                  });
                 });
             }, 10000);
-            toast.success("Your Payment Is Validating");
+            toast.success("Your Payment is Validating");
           } else if (response.errorCode === "500.001.1001") {
             // console.log(response.errorMessage);
           } else {
@@ -291,7 +330,12 @@ const PaymentInfo = ({
     onSubmit: async (values) => {
       const phone = values.phone;
       const amount = amount1;
-
+      // if (amount >= 150000) {
+      //   setLimit(true);
+      //   setError(false);
+      //   setSuccess(false);
+      //   setValidating(false);
+      // }
       await setLoading(true);
       await axios
         .post(
@@ -362,7 +406,7 @@ const PaymentInfo = ({
             <div className=" w-ful lg:flex sm:block border-b">
               <div className="items-center">
                 <img
-                  className="w-[125px] h-[100px] m-auto"
+                  className="w-[125px] h-[125px] m-auto"
                   src={mpesa}
                   alt="mpesaImg"
                 />
@@ -390,7 +434,7 @@ const PaymentInfo = ({
                     <input
                       placeholder={
                         formik.values.phone === ""
-                          ? "0712...345"
+                          ? "0712✱✱✱689"
                           : formik.values.phone
                       }
                       // placeholder="07✱✱✱✱✱✱✱✱"
@@ -407,7 +451,11 @@ const PaymentInfo = ({
                 <div>
                   <button
                     disabled={
-                      loading || success || done || error || amount1 >= 150000
+                      loading ||
+                      success ||
+                      validating ||
+                      error ||
+                      amount1 > 150000
                     }
                     type="submit"
                     className="group relative w-full flex justify-center mb-4 py-3 px-4 border border-transparent text-[16px] font-[600] rounded-[5px] text-white !bg-[#12b32a] hover:!bg-[#12b32a] disabled:!bg-[#a8deb0] disabled:cursor-not-allowed"
@@ -420,12 +468,12 @@ const PaymentInfo = ({
                       <p className="">
                         {success
                           ? "Put PIN on your Phone"
-                          : done
+                          : validating
                           ? "Validating Payment..."
                           : error
                           ? `${errorMessage}`
-                          : amount1 >= 150000
-                          ? "Transaction Amount limit Exceeded"
+                          : amount1 > 150000
+                          ? "Amout exceed Mpesa limt"
                           : "Pay Now"}
                       </p>
                     )}
@@ -514,7 +562,8 @@ const PaymentInfo = ({
             <form className="w-full" onSubmit={cashOnDeliveryHandler}>
               <input
                 type="submit"
-                value="Confirm"
+                disabled={loading1}
+                value={loading1 ? "loading..." : "Confirm"}
                 className={`${styles.button} !bg-[#f63b60] text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
               />
             </form>

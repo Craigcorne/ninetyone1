@@ -12,7 +12,7 @@ const Checkout = () => {
   const { user } = useSelector((state) => state.user);
   const [userInfo, setUserInfo] = useState(false);
   const { cart } = useSelector((state) => state.cart);
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState("KE");
   const [county, setCounty] = useState("");
   const [town, setTown] = useState(null);
   const [couponCode, setCouponCode] = useState("");
@@ -136,6 +136,7 @@ const Checkout = () => {
   );
 };
 
+const countries = Country.getAllCountries();
 const ShippingInfo = ({
   user,
   country,
@@ -178,6 +179,7 @@ const ShippingInfo = ({
         <div className="w-full flex pb-3">
           <div className="w-[50%]">
             <label className="block pb-2">Country</label>
+
             <select
               className="w-[95%] border h-[40px] rounded-[5px]"
               value={country}
@@ -186,13 +188,15 @@ const ShippingInfo = ({
               <option className="block pb-2" value="">
                 Choose your country
               </option>
-              {Country &&
-                Country.getAllCountries().map((item) => (
-                  <option key={item.isoCode} value={item.isoCode}>
-                    {item.name}
-                  </option>
-                ))}
+              {countries.map((item) => (
+                <option key={item.isoCode} value={item.isoCode}>
+                  {item.name}
+                </option>
+              ))}
             </select>
+            {Country && (
+              <p>{countries.find((item) => item.isoCode === Country)?.name}</p>
+            )}
           </div>
           <div className="w-[50%]">
             <label className="block pb-2">County</label>

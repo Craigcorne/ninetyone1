@@ -84,7 +84,7 @@ const UserOrderDetails = () => {
       });
   };
 
-  console.log(data);
+  // console.log(data);
 
   return (
     <>
@@ -97,11 +97,11 @@ const UserOrderDetails = () => {
             </div>
           </div>
           <h1 className="text-[20px] dark:text-white lg:text-4xl font-semibold leading-7 lg:leading-9 text-gray-800">
-            Order No: {data?._id.replace(/\D/g, "").slice(0, 10)}
+            Order No: {data?._id}
           </h1>
           <p className="text-base dark:text-gray-300 font-medium leading-6 text-gray-600">
             <p className="dark:text-gray-400 text-gray-300">Placed on: </p>{" "}
-            {moment(data?.createdAt).format("MMMM Do YYYY, h:mm:ss a")}
+            {moment(data?.createdAt).format("MMMM Do YYYY")}
           </p>
         </div>
         <div className="mt-10 flex flex-col xl:flex-row jusitfy-center items-stretch w-full xl:space-x-8 space-y-4 md:space-y-6 xl:space-y-0">

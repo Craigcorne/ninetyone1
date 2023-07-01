@@ -7,6 +7,7 @@ const Order = require("../model/order");
 const Shop = require("../model/shop");
 const Product = require("../model/product");
 const sendMail = require("../utils/sendMail");
+const order = require("../model/order");
 
 // create new order
 router.post(
@@ -42,6 +43,7 @@ router.post(
 
       for (const [shopId, items] of shopItemsMap) {
         const shopEmail = shopEmailsMap.get(shopId);
+
         const order = await Order.create({
           cart: items,
           shippingAddress,
@@ -69,7 +71,7 @@ router.post(
                     font-size: 28px !important;
                     margin-bottom: 10px !important;
                   }
-          
+
                   table.body p,
                   table.body ul,
                   table.body ol,
@@ -78,35 +80,36 @@ router.post(
                   table.body a {
                     font-size: 16px !important;
                   }
-          
+                  
+
                   table.body .wrapper,
                   table.body .article {
                     padding: 10px !important;
                   }
-          
+
                   table.body .content {
                     padding: 0 !important;
                   }
-          
+
                   table.body .container {
                     padding: 0 !important;
                     width: 100% !important;
                   }
-          
+
                   table.body .main {
                     border-left-width: 0 !important;
                     border-radius: 0 !important;
                     border-right-width: 0 !important;
                   }
-          
+
                   table.body .btn table {
                     width: 100% !important;
                   }
-          
+
                   table.body .btn a {
                     width: 100% !important;
                   }
-          
+
                   table.body .img-responsive {
                     height: auto !important;
                     max-width: 100% !important;
@@ -117,7 +120,7 @@ router.post(
                   .ExternalClass {
                     width: 100%;
                   }
-          
+
                   .ExternalClass,
                   .ExternalClass p,
                   .ExternalClass span,
@@ -126,7 +129,7 @@ router.post(
                   .ExternalClass div {
                     line-height: 100%;
                   }
-          
+
                   .apple-link a {
                     color: inherit !important;
                     font-family: inherit !important;
@@ -135,7 +138,7 @@ router.post(
                     line-height: inherit !important;
                     text-decoration: none !important;
                   }
-          
+
                   #MessageViewBody a {
                     color: inherit;
                     text-decoration: none;
@@ -144,11 +147,11 @@ router.post(
                     font-weight: inherit;
                     line-height: inherit;
                   }
-          
+
                   .btn-primary table td:hover {
                     background-color: #34495e !important;
                   }
-          
+
                   .btn-primary a:hover {
                     background-color: #34495e !important;
                     border-color: #34495e !important;
@@ -295,7 +298,7 @@ router.post(
                                       alt="eShoplogo"
                                     />
                                   </div>
-          
+
                                   <h2>Thanks for shopping with us</h2>
                                   <p>Hello ${user.name},</p>
                                   <p>
@@ -303,10 +306,7 @@ router.post(
                                   </p>
                                   <h2>
                                     Order No.
-                                    ${order._id
-                                      .toString()
-                                      .replace(/\D/g, "")
-                                      .slice(0, 10)}
+                                    ${order._id}
                                   </h2>
                                   <h4>
                                   Ordered on: (${order.createdAt
@@ -315,12 +315,12 @@ router.post(
                                   <table>
                                     <thead>
                                       <tr>
-                                        <td><strong>Product(s)</strong></td>
-                                        <td><strong>Quantity</strong></td>
-                                        <td><strong align="right">Price</strong></td>
+                                        <td style="padding-right: 20px;"><strong>Product(s)</strong></td>
+                                        <td style="padding-right: 10px;"><strong>Quantity</strong></td>
+                                        <td "text-align: right;"><strong align="right">Price</strong></td>
                                       </tr>
                                     </thead>
-          
+
                                     <tbody>
                                       ${cart
                                         .map(
@@ -377,7 +377,7 @@ router.post(
                                       <br/>
                                       <tr>
                                         <td colspan="2"><strong>Total Price:</strong></td>
-                                      
+
                                         <td align="right">
                                           <strong> Ksh. ${Math.round(totalPrice)
                                             .toString()
@@ -386,7 +386,7 @@ router.post(
                                               ","
                                             )}</strong>
                                         </td>
-                                      
+
                                       </tr>
                                       <br/><br/>
                                       <tr>
@@ -405,10 +405,10 @@ router.post(
                                       </tr>
                                     </tfoot>
                                   </table>
-          
+
                                   <h2>Shipping address</h2>
                                   <p>
-                                   
+
                                     ${shippingAddress.town},<br />
                                     ${shippingAddress.county},<br />
                                     ${shippingAddress.country}<br />
@@ -420,11 +420,11 @@ router.post(
                             </table>
                           </td>
                         </tr>
-          
+
                         <!-- END MAIN CONTENT AREA -->
                       </table>
                       <!-- END CENTERED WHITE CONTAINER -->
-          
+
                       <!-- START FOOTER -->
                       <div
                         class="footer"
@@ -546,7 +546,8 @@ router.post(
                     font-size: 28px !important;
                     margin-bottom: 10px !important;
                   }
-          
+                  
+
                   table.body p,
                   table.body ul,
                   table.body ol,
@@ -555,35 +556,35 @@ router.post(
                   table.body a {
                     font-size: 16px !important;
                   }
-          
+
                   table.body .wrapper,
                   table.body .article {
                     padding: 10px !important;
                   }
-          
+
                   table.body .content {
                     padding: 0 !important;
                   }
-          
+
                   table.body .container {
                     padding: 0 !important;
                     width: 100% !important;
                   }
-          
+
                   table.body .main {
                     border-left-width: 0 !important;
                     border-radius: 0 !important;
                     border-right-width: 0 !important;
                   }
-          
+
                   table.body .btn table {
                     width: 100% !important;
                   }
-          
+
                   table.body .btn a {
                     width: 100% !important;
                   }
-          
+
                   table.body .img-responsive {
                     height: auto !important;
                     max-width: 100% !important;
@@ -594,7 +595,7 @@ router.post(
                   .ExternalClass {
                     width: 100%;
                   }
-          
+
                   .ExternalClass,
                   .ExternalClass p,
                   .ExternalClass span,
@@ -603,7 +604,7 @@ router.post(
                   .ExternalClass div {
                     line-height: 100%;
                   }
-          
+
                   .apple-link a {
                     color: inherit !important;
                     font-family: inherit !important;
@@ -612,7 +613,7 @@ router.post(
                     line-height: inherit !important;
                     text-decoration: none !important;
                   }
-          
+
                   #MessageViewBody a {
                     color: inherit;
                     text-decoration: none;
@@ -621,11 +622,11 @@ router.post(
                     font-weight: inherit;
                     line-height: inherit;
                   }
-          
+
                   .btn-primary table td:hover {
                     background-color: #34495e !important;
                   }
-          
+
                   .btn-primary a:hover {
                     background-color: #34495e !important;
                     border-color: #34495e !important;
@@ -772,7 +773,7 @@ router.post(
                                       alt="eShoplogo"
                                     />
                                   </div>
-          
+
                                   <h2>Thanks for shopping with us</h2>
                                   <p>Hello ${user.name},</p>
                                   <p>
@@ -780,10 +781,8 @@ router.post(
                                   </p>
                                   <h2>
                                     Order No.
-                                    ${order._id
-                                      .toString()
-                                      .replace(/\D/g, "")
-                                      .slice(0, 10)}
+                                    ${order._id}
+
                                   </h2>
                                   <h4>
                                   Ordered on: (${order.createdAt
@@ -792,12 +791,12 @@ router.post(
                                   <table>
                                     <thead>
                                       <tr>
-                                        <td><strong>Product(s)</strong></td>
-                                        <td><strong>Quantity</strong></td>
-                                        <td><strong align="right">Price</strong></td>
+                                      <td style="padding-right: 20px;"><strong>Product(s)</strong></td>
+                                      <td style="padding-right: 10px;"><strong>Quantity</strong></td>
+                                      <td style="text-align: right;"><strong>Price</strong></td>
                                       </tr>
                                     </thead>
-          
+
                                     <tbody>
                                       ${cart
                                         .map(
@@ -854,7 +853,7 @@ router.post(
                                       <br/>
                                       <tr>
                                         <td colspan="2"><strong>Total Price:</strong></td>
-                                      
+
                                         <td align="right">
                                           <strong> Ksh. ${Math.round(totalPrice)
                                             .toString()
@@ -863,7 +862,7 @@ router.post(
                                               ","
                                             )}</strong>
                                         </td>
-                                      
+
                                       </tr>
                                       <br/><br/>
                                       <tr>
@@ -882,10 +881,10 @@ router.post(
                                       </tr>
                                     </tfoot>
                                   </table>
-          
+
                                   <h2>Shipping address</h2>
                                   <p>
-                                   
+
                                     ${shippingAddress.town},<br />
                                     ${shippingAddress.county},<br />
                                     ${shippingAddress.country}<br />
@@ -897,11 +896,11 @@ router.post(
                             </table>
                           </td>
                         </tr>
-          
+
                         <!-- END MAIN CONTENT AREA -->
                       </table>
                       <!-- END CENTERED WHITE CONTAINER -->
-          
+
                       <!-- START FOOTER -->
                       <div
                         class="footer"
@@ -1008,8 +1007,8 @@ router.post(
           </html>
           `,
         });
-        orders.push(order);
       }
+      orders.push(order);
 
       res.status(201).json({
         success: true,

@@ -275,7 +275,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
   const dispatch = useDispatch();
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
-  const [selectedSize, setSelectedSize] = useState(""); // Add state for selected size
+  // const [selectedSize, setSelectedSize] = useState(""); // Add state for selected size
 
   const totalReviewsLength =
     products &&
@@ -319,7 +319,8 @@ const ProductDetailsCard = ({ setOpen, data }) => {
       if (data.stock < count) {
         toast.error("Product stock exceeded!");
       } else {
-        const cartData = { ...data, qty: count, size: selectedSize }; // Add selected size to cartData
+        const cartData = { ...data, qty: count }; // Add selected size to cartData
+        // size: selectedSize
         dispatch(addTocart(cartData));
         toast.success("Item added to cart successfully!");
       }
@@ -356,9 +357,9 @@ const ProductDetailsCard = ({ setOpen, data }) => {
     }
   };
 
-  const handleSizeChange = (e) => {
-    setSelectedSize(e.target.value);
-  };
+  // const handleSizeChange = (e) => {
+  //   setSelectedSize(e.target.value);
+  // };
 
   return (
     <div className="bg-[#fff]">
@@ -494,7 +495,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                     Add to cart <AiOutlineShoppingCart className="ml-1" />
                   </span>
                 </div>
-                <div className="mt-6">
+                {/* <div className="mt-6">
                   <h4 className="text-lg font-medium text-gray-700 mb-3">
                     Select Size:
                   </h4>
@@ -513,7 +514,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                       </button>
                     ))}
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
