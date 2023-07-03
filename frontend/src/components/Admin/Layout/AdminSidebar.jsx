@@ -6,7 +6,7 @@ import { CiMoneyBill, CiSettings } from "react-icons/ci";
 import { Link } from "react-router-dom";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { BsHandbag } from "react-icons/bs";
-import { MdOutlineLocalOffer } from "react-icons/md";
+import { MdOutlineLocalOffer, MdOutlineViewCarousel } from "react-icons/md";
 import { AiOutlineSetting } from "react-icons/ai";
 import { BiCategoryAlt } from "react-icons/bi";
 
@@ -150,6 +150,21 @@ const AdminSideBar = ({ active }) => {
             }`}
           >
             Category
+          </h5>
+        </Link>
+      </div>
+      <div className="w-full flex items-center p-4">
+        <Link to="/admin-carousel" className="w-full flex items-center">
+          <MdOutlineViewCarousel
+            size={30}
+            color={`${active === 11 ? "crimson" : "#555"}`}
+          />
+          <h5
+            className={`hidden 800px:block pl-2 text-[18px] font-[400] ${
+              active === 11 ? "text-[crimson]" : "text-[#555]"
+            }`}
+          >
+            Create Carousel
           </h5>
         </Link>
       </div>

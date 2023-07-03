@@ -20,7 +20,7 @@ const FeaturedProduct = () => {
           <h1>Featured Products</h1>
         </div>
 
-        <div className="overflow-x-auto flex space-x-4 mb-12 border-0">
+        <div className="overflow-x-auto flex space-x-4 mb-12 border-0 ">
           {data &&
             data.map((i, index) => (
               <div className="flex-none w-[250px] h-[400px]" key={index}>

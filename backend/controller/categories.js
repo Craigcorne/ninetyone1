@@ -57,7 +57,7 @@ router.put("/categories/:id", upload, (req, res) => {
     });
 });
 
-router.delete("/categories-del/:id", (req, res) => {
+router.delete("/delete-category/:id", (req, res) => {
   const { id } = req.params;
 
   Category.findByIdAndDelete(id)

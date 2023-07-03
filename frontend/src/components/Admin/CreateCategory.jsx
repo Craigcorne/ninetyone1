@@ -7,7 +7,7 @@ import styles from "../../styles/styles";
 import { toast } from "react-toastify";
 import { backend_url } from "../../server";
 import { RxCross1 } from "react-icons/rx";
-import { deleteCategory } from "../../redux/actions/categories";
+
 import { useNavigate } from "react-router-dom";
 
 const CreateCategory = () => {
@@ -15,6 +15,7 @@ const CreateCategory = () => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const navigate = useNavigate();
 
@@ -49,12 +50,25 @@ const CreateCategory = () => {
   };
 
   const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
+    const selectedImage = e.target.files[0];
+    setImage(selectedImage);
+
+    // Create a preview of the selected image
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(selectedImage);
   };
 
-  const handleDeleteCategory = ({ categoryId }) => {
-    deleteCategory(categoryId);
-    navigate("/categories"); // Redirect to categories list after deletion
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      await axios.delete(`${server}/category/delete-category/${categoryId}`);
+      toast.success("Category deleted!");
+      fetchCategories(); // Refresh the categories list after deletion
+    } catch (error) {
+      toast.error(error.response.data);
+    }
   };
 
   return (
@@ -92,31 +106,31 @@ const CreateCategory = () => {
                     />
                     <br />
                   </div>
-                  <div className="w-full pb-2">
-                    <label className="block pb-2">
+                  <div className="w-full pb-4">
+                    <label className="block pb-2 text-lg font-semibold">
                       Upload Image <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="file"
-                      className="hidden"
-                      id="upload"
-                      required
-                      name=""
-                      onChange={handleImageChange}
-                    />
-                  </div>
-                  <div className="w-full flex items-center flex-wrap">
-                    <label htmlFor="upload">
-                      <AiOutlinePlusCircle
-                        size={30}
-                        className="mt-3"
-                        color="#555"
+                    <div className="flex items-center">
+                      <label htmlFor="upload" className="cursor-pointer">
+                        <AiOutlinePlusCircle size={40} color="#555" />
+                      </label>
+                      <input
+                        type="file"
+                        className="hidden"
+                        id="upload"
+                        required
+                        name=""
+                        onChange={handleImageChange}
                       />
-                    </label>
-                    <img
-                      alt=""
-                      className="h-[120px] w-[120px] object-cover m-2"
-                    />
+                      {/* Image preview */}
+                      {imagePreview && (
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="ml-4 h-24 w-24 object-cover rounded-md"
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className=" w-full pb-2">
                     <input
@@ -163,7 +177,7 @@ const CreateCategory = () => {
             <AiOutlineDelete
               size={25}
               className="cursor-pointer"
-              onClick={handleDeleteCategory}
+              onClick={() => handleDeleteCategory(category._id)}
             />
           </div>
         </div>

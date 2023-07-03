@@ -7,13 +7,13 @@
 /* Customize scrollbar thumb */
 ::-webkit-scrollbar-thumb {
   background-color: gray;
-  border-radius: 3px;
+  border-radius: 0;
 }
 
 /* Minimize scrollbar size */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 0;
+  height: 0;
 }
 
 .disableStyles ol {

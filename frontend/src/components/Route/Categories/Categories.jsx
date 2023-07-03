@@ -1,11 +1,31 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { brandingData, categoriesData } from "../../../static/data";
+import { brandingData } from "../../../static/data";
 import styles from "../../../styles/styles";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
+import axios from "axios";
+import { backend_url, server } from "../../../server";
 
 const Categories = () => {
   const navigate = useNavigate();
+  const [categoriesData, setCategoriesData] = useState([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${server}/category/categories`);
+      const sortedCategories = response.data.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+      setCategoriesData(sortedCategories);
+    } catch (error) {
+      console.error("Error:", error.response.data);
+    }
+  };
+
   // scrolls
   const slideLeft = () => {
     var slider = document.getElementById("slider");
@@ -49,26 +69,16 @@ const Categories = () => {
             id="slider"
             style={{ scrollBehavior: "smooth" }}
           >
-            {categoriesData &&
-              categoriesData.map((i) => {
-                const handleSubmit = (i) => {
-                  navigate(`/products?category=${i.title}`);
-                };
-                return (
-                  <div
-                    className="categoryCardDetails"
-                    key={i.id}
-                    onClick={() => handleSubmit(i)}
-                  >
-                    <h5>{i.title}</h5>
-                    <img
-                      src={i.image_Url}
-                      className="w-[120px] object-cover"
-                      alt=""
-                    />
-                  </div>
-                );
-              })}
+            {categoriesData.map((category) => (
+              <div className="categoryCardDetails" key={category._id}>
+                <h5>{category.name}</h5>
+                <img
+                  src={`${backend_url}${category?.image}`}
+                  className="w-[120px] object-cover"
+                  alt=""
+                />
+              </div>
+            ))}
           </div>
         </div>
         <MdChevronRight className="leftScroll" onClick={slideRight} size={40} />
