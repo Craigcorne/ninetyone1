@@ -77,6 +77,7 @@ const Categories = () => {
                   className="w-[120px] object-cover"
                   alt=""
                 />
+                {/* Display sub-categories */}
               </div>
             ))}
           </div>

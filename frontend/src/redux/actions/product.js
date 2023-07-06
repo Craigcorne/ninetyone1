@@ -120,18 +120,37 @@ export const updateProductFailure = (error) => {
   };
 };
 
-export const updateProduct = (productId, updatedProduct) => {
-  return (dispatch) => {
-    dispatch(updateProductRequest());
-    axios
-      .put(`/api/products/${productId}`, updatedProduct)
-      .then((response) => {
-        dispatch(updateProductSuccess());
-        // Handle any additional logic or update the state as needed
-      })
-      .catch((error) => {
-        dispatch(updateProductFailure(error.message));
-        // Handle any error scenarios or display error messages
-      });
-  };
+export const getProduct = (productId) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "getProductRequest",
+    });
+
+    const { data } = await axios.get(`${server}/product/${productId}`);
+    dispatch({
+      type: "getProductSuccess",
+      payload: data.product,
+    });
+  } catch (error) {
+    dispatch({
+      type: "getProductFailed",
+      payload: error.response.data.message,
+    });
+  }
 };
+
+export const updateProduct =
+  (productId, updatedProduct) => async (dispatch) => {
+    try {
+      dispatch(updateProductRequest());
+      const { data } = await axios.put(
+        `${server}/product/update-product/${productId}`,
+        updatedProduct
+      );
+      dispatch(updateProductSuccess(data));
+      // Handle any additional logic or update the state as needed
+    } catch (error) {
+      dispatch(updateProductFailure(error.message));
+      // Handle any error scenarios or display error messages
+    }
+  };

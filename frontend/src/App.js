@@ -64,7 +64,10 @@ import ResetPassword from "./pages/ResetPasswordPage";
 import ShopResetPassword from "./components/Shop/ShopResetPassword";
 import CompareProducts from "./pages/CompareProducts";
 import AdminCategories from "./pages/AdminCategories";
-import CreateCarouselPage from "./components/Admin/CreateCarousel";
+import AdminCarousel from "./pages/AdminCarousel";
+import ShopUpdateProduct from "./pages/Shop/ShopUpdateProduct";
+import EditProduct from "./components/Shop/UpdateProduct";
+import StatementsPage from "./components/Admin/CreateStatements";
 
 const App = () => {
   useEffect(() => {
@@ -170,6 +173,14 @@ const App = () => {
             </SellerProtectedRoute>
           }
         />
+        <Route
+          path="/edit-product/:productId"
+          element={
+            <SellerProtectedRoute>
+              <EditProduct />
+            </SellerProtectedRoute>
+          }
+        />
         {/* <Route path="/trial" element={<TrialPage />} /> */}
         <Route
           path="/dashboard"
@@ -184,6 +195,14 @@ const App = () => {
           element={
             <SellerProtectedRoute>
               <ShopCreateProduct />
+            </SellerProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard-update-product"
+          element={
+            <SellerProtectedRoute>
+              <ShopUpdateProduct />
             </SellerProtectedRoute>
           }
         />
@@ -297,7 +316,7 @@ const App = () => {
           path="/admin-carousel"
           element={
             <ProtectedAdminRoute>
-              <CreateCarouselPage />
+              <AdminCarousel />
             </ProtectedAdminRoute>
           }
         />
@@ -314,6 +333,14 @@ const App = () => {
           element={
             <ProtectedAdminRoute>
               <AdminCategories />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin-statements"
+          element={
+            <ProtectedAdminRoute>
+              <StatementsPage />
             </ProtectedAdminRoute>
           }
         />

@@ -11,6 +11,11 @@ export const deleteCategory = (categoryId) => ({
   payload: categoryId,
 });
 
+export const setCategories = (categories) => ({
+  type: "SET_CATEGORIES",
+  payload: categories,
+});
+
 export const deleteCategoryThunk = (categoryId) => async (dispatch) => {
   try {
     await axios.delete(`/api/categories/${categoryId}`, {
