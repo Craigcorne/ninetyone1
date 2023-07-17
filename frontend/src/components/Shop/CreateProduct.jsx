@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlineDelete, AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createProduct } from "../../redux/actions/product";
@@ -114,6 +114,12 @@ const CreateProduct = () => {
       dispatch(createProduct(newForm));
     },
   });
+
+  const deleteImage = (index) => {
+    const updatedImages = [...images];
+    updatedImages.splice(index, 1); // Remove the image at the specified index
+    setImages(updatedImages);
+  };
 
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -322,13 +328,20 @@ const CreateProduct = () => {
               <AiOutlinePlusCircle size={30} className="mt-3" color="#555" />
             </label>
             {images &&
-              images.map((i) => (
-                <img
-                  src={URL.createObjectURL(i)}
-                  key={i}
-                  alt=""
-                  className="h-[120px] w-[120px] object-cover m-2"
-                />
+              images.map((image, index) => (
+                <div className="relative" key={index}>
+                  <img
+                    src={URL.createObjectURL(image)}
+                    alt=""
+                    className="h-[120px] w-[120px] object-cover m-2"
+                  />
+                  <button
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+                    onClick={() => deleteImage(index)}
+                  >
+                    <AiOutlineDelete size={16} />
+                  </button>
+                </div>
               ))}
           </div>
           <br />

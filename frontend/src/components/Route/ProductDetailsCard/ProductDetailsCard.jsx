@@ -293,10 +293,6 @@ const ProductDetailsCard = ({ setOpen, data }) => {
 
   const handleMessageSubmit = () => {};
 
-  const incrementCount = () => {
-    setCount(count + 1);
-  };
-
   const maximum = () => {
     toast.error("Qty Maxed Out");
   };
@@ -305,9 +301,19 @@ const ProductDetailsCard = ({ setOpen, data }) => {
     toast.error("Minimum Qty reached");
   };
 
+  const incrementCount = () => {
+    if (count < data.stock) {
+      setCount(count + 1);
+    } else {
+      maximum();
+    }
+  };
+
   const decrementCount = () => {
     if (count > 1) {
       setCount(count - 1);
+    } else {
+      minimum();
     }
   };
 
@@ -450,51 +456,62 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                     />
                   </h3>
                 </div>
-                <div className="flex items-center mt-12 justify-between pr-3">
-                  <div>
-                    <button
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
-                      onClick={decrementCount}
-                    >
-                      -
-                    </button>
-                    <span className="bg-gray-200 text-gray-800 font-medium px-4 py-[11px]">
-                      {count}
+                {data.stock < 1 ? (
+                  <p className="text-red-600">Out Of Stock</p>
+                ) : (
+                  <div className="w-full mt-4">
+                    <div className="w-full flex">
+                      <div className="w-1/2">
+                        <div className="text-lg font-bold">Qty:</div>
+                        <div className="flex items-center mt-2">
+                          <div
+                            className={`${
+                              count <= 1
+                                ? "bg-gray-300 cursor-not-allowed"
+                                : "bg-gray-300 cursor-pointer"
+                            } w-10 h-10 flex items-center justify-center rounded-full`}
+                            onClick={decrementCount}
+                          >
+                            <span className="text-xl">-</span>
+                          </div>
+                          <div className="mx-4">{count}</div>
+                          <div
+                            className={`${
+                              count >= data.stock
+                                ? "bg-gray-300 cursor-not-allowed"
+                                : "bg-gray-300 cursor-pointer"
+                            } w-10 h-10 flex items-center justify-center rounded-full`}
+                            onClick={
+                              count >= data.stock ? maximum : incrementCount
+                            }
+                          >
+                            <span className="text-xl">+</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {data.stock < 1 ? (
+                  ""
+                ) : (
+                  <div
+                    className={`${styles.button} !mt-6 !rounded !h-11 flex items-center`}
+                    onClick={() => addToCartHandler(data._id)}
+                  >
+                    <span className="text-white flex items-center">
+                      Add to cart <AiOutlineShoppingCart className="ml-1" />
                     </span>
-                    <button
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
-                      onClick={count < data.stock ? incrementCount : maximum}
-                    >
-                      +
-                    </button>
                   </div>
-                  <div>
-                    {click ? (
-                      <AiFillHeart
-                        size={30}
-                        className="cursor-pointer"
-                        onClick={() => removeFromWishlistHandler(data)}
-                        color={click ? "red" : "#333"}
-                        title="Remove from wishlist"
-                      />
-                    ) : (
-                      <AiOutlineHeart
-                        size={30}
-                        className="cursor-pointer"
-                        onClick={() => addToWishlistHandler(data)}
-                        title="Add to wishlist"
-                      />
-                    )}
-                  </div>
-                </div>
-                <div
+                )}
+                {/* <div
                   className={`${styles.button} mt-6 rounded-[4px] h-11 flex items-center`}
                   onClick={() => addToCartHandler(data._id)}
                 >
                   <span className="text-[#fff] flex items-center">
                     Add to cart <AiOutlineShoppingCart className="ml-1" />
                   </span>
-                </div>
+                </div> */}
                 {/* <div className="mt-6">
                   <h4 className="text-lg font-medium text-gray-700 mb-3">
                     Select Size:

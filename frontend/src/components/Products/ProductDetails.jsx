@@ -134,6 +134,9 @@
 //
 
 import React, { useEffect, useState } from "react";
+
+import { formatDistanceToNow } from "date-fns";
+
 import {
   AiFillHeart,
   AiOutlineHeart,
@@ -182,9 +185,6 @@ const ProductDetails = ({ data }) => {
     }
   }, [data, wishlist]);
 
-  const incrementCount = () => {
-    setCount(count + 1);
-  };
   const maximum = () => {
     toast.error("Qty Maxed Out");
   };
@@ -192,9 +192,19 @@ const ProductDetails = ({ data }) => {
     toast.error("Minimum Qty reached");
   };
 
+  const incrementCount = () => {
+    if (count < data.stock) {
+      setCount(count + 1);
+    } else {
+      maximum();
+    }
+  };
+
   const decrementCount = () => {
     if (count > 1) {
       setCount(count - 1);
+    } else {
+      minimum();
     }
   };
 
@@ -281,14 +291,14 @@ const ProductDetails = ({ data }) => {
                 />
                 <div className="w-full flex">
                   {data &&
-                    data.images.map((i, index) => (
+                    data.images.map((image, index) => (
                       <div
                         className={`${
                           select === index ? "border" : null
                         } cursor-pointer`}
                       >
                         <img
-                          src={`${backend_url}${i}`}
+                          src={`${backend_url}${image}`}
                           alt=""
                           className="h-[100px] w-[100px] object-cover mr-3 mt-3"
                           // className="h-[200px] overflow-hidden mr-3 mt-3"
@@ -300,7 +310,7 @@ const ProductDetails = ({ data }) => {
               </div>
               <div className="w-full 800px:w-[50%] pt-5">
                 <h1 className={`${styles.productTitle}`}>{data.name}</h1>
-                <p>{data.stock}</p>
+
                 <div className="disableStyles">
                   <p
                     dangerouslySetInnerHTML={{
@@ -311,56 +321,41 @@ const ProductDetails = ({ data }) => {
                     }}
                   ></p>
                 </div>
-                <div className="flex pt-3">
-                  <h4 className={`${styles.productDiscountPrice}`}>
-                    Ksh. {data.discountPrice}
-                  </h4>
-                  <h3 className={`${styles.price}`}>
-                    {"Ksh. " + (data.originalPrice ? data.originalPrice : null)}
-                  </h3>
-                </div>
 
                 <br />
                 {data.stock < 1 ? (
                   <p className="text-red-600">Out Of Stock</p>
                 ) : (
-                  <div className="flex items-center mt-12 justify-between pr-3">
-                    <div>
-                      <button
-                        disabled={count === 1}
-                        className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
-                        onClick={decrementCount}
-                      >
-                        -
-                      </button>
-                      <span className="bg-gray-200 text-gray-800 font-medium px-4 py-[11px]">
-                        {count}
-                      </span>
-                      <button
-                        className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
-                        onClick={count < data.stock ? incrementCount : maximum}
-                      >
-                        +
-                      </button>
-                    </div>
-                    <div>
-                      {click ? (
-                        <AiFillHeart
-                          size={30}
-                          className="cursor-pointer"
-                          onClick={() => removeFromWishlistHandler(data)}
-                          color={click ? "red" : "#333"}
-                          title="Remove from wishlist"
-                        />
-                      ) : (
-                        <AiOutlineHeart
-                          size={30}
-                          className="cursor-pointer"
-                          onClick={() => addToWishlistHandler(data)}
-                          color={click ? "red" : "#333"}
-                          title="Add to wishlist"
-                        />
-                      )}
+                  <div className="w-full mt-4">
+                    <div className="w-full flex">
+                      <div className="w-1/2">
+                        <div className="text-lg font-bold">Qty:</div>
+                        <div className="flex items-center mt-2">
+                          <div
+                            className={`${
+                              count <= 1
+                                ? "bg-gray-300 cursor-not-allowed"
+                                : "bg-gray-300 cursor-pointer"
+                            } w-10 h-10 flex items-center justify-center rounded-full`}
+                            onClick={decrementCount}
+                          >
+                            <span className="text-xl">-</span>
+                          </div>
+                          <div className="mx-4">{count}</div>
+                          <div
+                            className={`${
+                              count >= data.stock
+                                ? "bg-gray-300 cursor-not-allowed"
+                                : "bg-gray-300 cursor-pointer"
+                            } w-10 h-10 flex items-center justify-center rounded-full`}
+                            onClick={
+                              count >= data.stock ? maximum : incrementCount
+                            }
+                          >
+                            <span className="text-xl">+</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -505,22 +500,32 @@ const ProductDetailsInfo = ({
       {active === 2 ? (
         <div className="w-full min-h-[40vh] flex flex-col items-center py-3 overflow-y-scroll">
           {data &&
-            data.reviews.map((item, index) => (
-              <div className="w-full flex my-2">
-                <img
-                  src={`${backend_url}/${item.user.avatar}`}
-                  alt=""
-                  className="w-[50px] h-[50px] rounded-full"
-                />
-                <div className="pl-2 ">
-                  <div className="w-full flex items-center">
-                    <h1 className="font-[500] mr-3">{item.user.name}</h1>
-                    <Ratings rating={data?.ratings} />
+            data.reviews
+              .slice()
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .map((item, index) => (
+                <div className="w-full flex my-4" key={index}>
+                  <img
+                    src={`${backend_url}/${item.user.avatar}`}
+                    className="w-[50px] h-[50px] rounded-full"
+                    alt=""
+                  />
+                  <div className="pl-2">
+                    <div className="flex w-full items-center">
+                      <h1 className="font-[600] pr-2">{item.user.name}</h1>
+                      <Ratings rating={item.rating} />
+                    </div>
+                    <p className="font-[400] text-[#000000a7]">
+                      {item?.comment}
+                    </p>
+                    <p className="text-[#1307f1a7] text-sm">
+                      {formatDistanceToNow(new Date(item?.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </p>
                   </div>
-                  <p>{item.comment}</p>
                 </div>
-              </div>
-            ))}
+              ))}
 
           <div className="w-full flex justify-center">
             {data && data.reviews.length === 0 && (

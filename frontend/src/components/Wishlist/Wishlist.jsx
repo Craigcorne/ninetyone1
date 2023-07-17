@@ -10,6 +10,9 @@ import { removeFromWishlist } from "../../redux/actions/wishlist";
 import { backend_url } from "../../server";
 import { addTocart } from "../../redux/actions/cart";
 import { NumericFormat } from "react-number-format";
+import { toast } from "react-toastify";
+import CustomModal from "../CustomModal";
+import { AiFillDelete } from "react-icons/ai";
 
 const Wishlist = ({ setOpenWishlist }) => {
   const { wishlist } = useSelector((state) => state.wishlist);
@@ -17,12 +20,6 @@ const Wishlist = ({ setOpenWishlist }) => {
 
   const removeFromWishlistHandler = (data) => {
     dispatch(removeFromWishlist(data));
-  };
-
-  const addToCartHandler = (data) => {
-    const newData = { ...data, qty: 1 };
-    dispatch(addTocart(newData));
-    setOpenWishlist(false);
   };
 
   const myClickHandler = (e, props) => {
@@ -37,10 +34,16 @@ const Wishlist = ({ setOpenWishlist }) => {
       e.stopPropagation();
     }
   };
+  const addToCartHandler = (data) => {
+    const newData = { ...data, qty: 1 };
+    dispatch(addTocart(newData));
+    dispatch(removeFromWishlist(data));
+    toast.success("Item added to cart");
+  };
 
   return (
     <div
-      className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10"
+      className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10 appear__smoothly"
       onClick={(e) => myClickHandler(e, false)}
     >
       <div
@@ -48,7 +51,7 @@ const Wishlist = ({ setOpenWishlist }) => {
         className="fixed top-0 right-0 h-full w-[80%] overflow-y-scroll 800px:w-[25%] bg-white flex flex-col justify-between shadow-sm"
       >
         {wishlist && wishlist.length === 0 ? (
-          <div className="w-full h-screen flex items-center justify-center">
+          <div className="w-full h-screen flex items-center justify-center appear__smoothly">
             <div className="flex w-full justify-end pt-5 pr-5 fixed top-3 right-3">
               <RxCross1
                 size={25}
@@ -108,42 +111,57 @@ const Wishlist = ({ setOpenWishlist }) => {
 
 const CartSingle = ({ data, removeFromWishlistHandler, addToCartHandler }) => {
   const [value, setValue] = useState(1);
+  const [modalOpen, setModalOpen] = useState(false);
   const totalPrice = data.discountPrice * value;
 
   return (
-    <div className="border-b p-4">
-      <div className="w-full 800px:flex items-center">
-        <RxCross1
-          className="cursor-pointer 800px:mb-['unset'] 800px:ml-['unset'] mb-2 ml-2 min-w-[20px]"
-          onClick={() => removeFromWishlistHandler(data)}
+    <>
+      {modalOpen && (
+        <CustomModal
+          message={"Are you sure you want to remove from favourite?"}
+          ok={" Yes, I'm sure"}
+          cancel={"No, cancel"}
+          setModalOpen={setModalOpen}
+          performAction={() => removeFromWishlistHandler(data)}
+          closeModel={() => setModalOpen(false)}
         />
-        <img
-          src={`${backend_url}${data?.images[0]}`}
-          alt=""
-          className="w-[130px] h-min ml-2 mr-2 rounded-[5px]"
-        />
-
-        <div className="pl-[5px]">
-          {data.name.length > 40 ? data.name.slice(0, 40) + "..." : data.name}
-          <h4 className="font-[600] pt-3 800px:pt-[3px] text-[17px] text-[#d02222] font-Roboto">
-            <NumericFormat
-              value={totalPrice}
-              displayType={"text"}
-              thousandSeparator={true}
-              prefix={"Ksh. "}
-            />
-          </h4>
-        </div>
-        <div>
-          <BsCartPlus
-            size={20}
-            className="cursor-pointer"
-            tile="Add to cart"
-            onClick={() => addToCartHandler(data)}
+      )}
+      <div className="border-b p-4 appear__smoothly">
+        <div className="w-full flex items-center">
+          <AiFillDelete
+            className="cursor-pointer 800px:mb-['unset'] 800px:ml-['unset'] mb-2 ml-2 min-w-[20px]"
+            onClick={() => setModalOpen(true)}
+            size={60}
+            color={"rgb(240 11 11 / 86%)"}
           />
+          <img
+            src={`${backend_url}${data?.images[0]}`}
+            alt=""
+            className="w-[70px] lg:w-[130px] h-min ml-2 mr-2 rounded-[5px]"
+          />
+          <div className="pl-[5px]">
+            {data.name.length > 40 ? data.name.slice(0, 40) + "..." : data.name}
+            <h4 className="font-[600] pt-3 800px:pt-[3px] text-[17px] text-[#d02222] font-Roboto">
+              <NumericFormat
+                value={totalPrice}
+                displayType={"text"}
+                thousandSeparator={true}
+                prefix={"Ksh. "}
+              />
+            </h4>
+          </div>
+          <div>
+            <BsCartPlus
+              size={30}
+              color="green"
+              className="cursor-pointer"
+              tile="Add to cart"
+              onClick={() => addToCartHandler(data)}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

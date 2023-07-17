@@ -64,17 +64,19 @@ const BestSellingPage = () => {
           <Header activeHeading={2} />
           <br />
           <br />
-          <div className={`${styles.section}`}>
+          <div className={`${styles.section} appear__smoothly`}>
             <div className="flex justify-start mb-4">
               <label className="mr-2">Category:</label>
               <select value={selectedCategory} onChange={handleCategoryChange}>
                 <option value="">All</option>
                 {categoriesData &&
-                  categoriesData.map((i) => (
-                    <option value={i.name} key={i._id}>
-                      {i.name}
-                    </option>
-                  ))}
+                  categoriesData
+                    .sort((a, b) => a.name.localeCompare(b.name)) // Sort categories alphabetically
+                    .map((i) => (
+                      <option value={i.name} key={i.name}>
+                        {i.name}
+                      </option>
+                    ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-12">

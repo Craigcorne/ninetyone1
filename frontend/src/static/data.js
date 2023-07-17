@@ -20,10 +20,6 @@ export const navItems = [
     title: "Events",
     url: "/events",
   },
-  {
-    title: "FAQ",
-    url: "/faq",
-  },
 ];
 
 // branding data
@@ -595,25 +591,25 @@ export const productData = [
   },
 ];
 
-// export const footerProductLinks = [
-//   {
-//     name: "About us",
-//     link: "/about",
-//   },
-//   {
-//     name: "Careers",
-//     link: "/carrers",
-//   },
-//   {
-//     name: "Store Locations",
-//   },
-//   {
-//     name: "Our Blog",
-//   },
-//   {
-//     name: "Reviews",
-//   },
-// ];
+export const footerProductLinks = [
+  {
+    name: "About us",
+    link: "/about",
+  },
+  {
+    name: "Careers",
+    link: "/carrers",
+  },
+  {
+    name: "Store Locations",
+  },
+  {
+    name: "Our Blog",
+  },
+  {
+    name: "Reviews",
+  },
+];
 
 export const footercompanyLinks = [
   {

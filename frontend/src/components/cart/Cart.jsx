@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { RxCross1 } from "react-icons/rx";
+import { AiFillDelete } from "react-icons/ai";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { HiOutlineMinus, HiPlus } from "react-icons/hi";
 import styles from "../../styles/styles";
@@ -9,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addTocart, removeFromCart } from "../../redux/actions/cart";
 import { toast } from "react-toastify";
 import { NumericFormat } from "react-number-format";
+import CustomModal from "../CustomModal";
 
 const Cart = ({ setOpenCart }) => {
   const { cart } = useSelector((state) => state.cart);
@@ -28,7 +30,6 @@ const Cart = ({ setOpenCart }) => {
   };
 
   const myClickHandler = (e, props) => {
-    // Here you'll do whatever you want to happen when they click
     setOpenCart(props);
 
     if (!e) {
@@ -42,7 +43,7 @@ const Cart = ({ setOpenCart }) => {
 
   return (
     <div
-      className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10"
+      className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10 appear__smoothly"
       onClick={(e) => myClickHandler(e, false)}
     >
       <div
@@ -50,7 +51,7 @@ const Cart = ({ setOpenCart }) => {
         className="fixed top-0 right-0 h-full w-[80%] 800px:w-[25%] bg-white flex flex-col overflow-y-scroll justify-between shadow-sm"
       >
         {cart && cart.length === 0 ? (
-          <div className="w-full h-screen flex items-center justify-center">
+          <div className="w-full h-screen flex items-center justify-center appear__smoothly ">
             <div className="flex w-full justify-end pt-5 pr-5 fixed top-3 right-3">
               <RxCross1
                 size={25}
@@ -89,7 +90,7 @@ const Cart = ({ setOpenCart }) => {
 
               {/* cart Single Items */}
               <br />
-              <div className="w-full border-t">
+              <div className="w-full border-t appear__smoothly">
                 {cart &&
                   cart.map((i, index) => (
                     <CartSingle
@@ -106,7 +107,7 @@ const Cart = ({ setOpenCart }) => {
               {/* checkout buttons */}
               <Link to="/checkout">
                 <div
-                  className={`h-[45px] flex items-center justify-center w-[100%] bg-[#e44343] rounded-[5px]`}
+                  className={`h-[45px] mb-16 mt-1 lg:mb-0 flex items-center justify-center w-[100%] bg-[#e44343] rounded-[5px]`}
                 >
                   <h1 className="text-[#fff] text-[18px] font-[600]">
                     Checkout Now (
@@ -130,14 +131,16 @@ const Cart = ({ setOpenCart }) => {
 
 const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
   const [value, setValue] = useState(data.qty);
+  const [modalOpen, setModalOpen] = useState(false);
   const totalPrice = data.discountPrice * value;
 
   const increment = (data) => {
-    if (data.stock < value) {
+    if (data.stock <= value) {
       toast.error("Product stock limited!");
     } else {
-      setValue(value + 1);
-      const updateCartData = { ...data, qty: value + 1 };
+      const updatedValue = value + 1;
+      setValue(updatedValue);
+      const updateCartData = { ...data, qty: updatedValue };
       quantityChangeHandler(updateCartData);
     }
   };
@@ -149,57 +152,77 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
   };
 
   return (
-    <div className="border-b p-4">
-      <div className="w-full flex items-center">
-        <div>
-          <div
-            className={`bg-[#e44343] border border-[#e4434373] rounded-full w-[25px] h-[25px] ${styles.noramlFlex} justify-center cursor-pointer`}
-            onClick={() => increment(data)}
-          >
-            <HiPlus size={18} color="#fff" />
-          </div>
-          <span className="pl-[10px]">{data.qty}</span>
-          <div
-            className="bg-[#a7abb14f] rounded-full w-[25px] h-[25px] flex items-center justify-center cursor-pointer"
-            onClick={() => decrement(data)}
-          >
-            <HiOutlineMinus size={16} color="#7d879c" />
-          </div>
-        </div>
-        <img
-          src={`${backend_url}${data?.images[0]}`}
-          alt=""
-          className="w-[130px] h-min ml-2 mr-2 rounded-[5px]"
+    <>
+      {modalOpen && (
+        <CustomModal
+          message={"Are you sure you want to delete this product?"}
+          ok={" Yes, I'm sure"}
+          cancel={"No, cancel"}
+          setModalOpen={setModalOpen}
+          performAction={() => removeFromCartHandler(data)}
+          closeModel={() => setModalOpen(false)}
         />
-        <div className="pl-[5px]">
-          {/* <h1>{data.name}</h1> */}
-          <h1>
-            {data.name.length > 40 ? data.name.slice(0, 20) + "..." : data.name}
-          </h1>
-          <h4 className="font-[400] text-[15px] text-[#00000082]">
-            <NumericFormat
-              value={data.discountPrice}
-              displayType={"text"}
-              thousandSeparator={true}
-              prefix={"Ksh. "}
-            />
-            x {value}
-          </h4>
-          <h4 className="font-[600] text-[17px] pt-[3px] text-[#d02222] font-Roboto">
-            <NumericFormat
-              value={totalPrice}
-              displayType={"text"}
-              thousandSeparator={true}
-              prefix={"Ksh. "}
-            />
-          </h4>
+      )}
+      <div className="border-b p-4">
+        <div className="w-full flex items-center">
+          <div>
+            <div
+              className={`bg-[#e44343] border border-[#e4434373] rounded-full w-[25px] h-[25px] ${styles.noramlFlex} justify-center cursor-pointer`}
+              onClick={() => increment(data)}
+            >
+              <HiPlus size={18} color="#fff" />
+            </div>
+            <span className="pl-[10px]">{data.qty}</span>
+            <div
+              className="bg-[#a7abb14f] rounded-full w-[25px] h-[25px] flex items-center justify-center cursor-pointer"
+              onClick={() => decrement(data)}
+            >
+              <HiOutlineMinus size={16} color="#7d879c" />
+            </div>
+          </div>
+
+          <img
+            src={`${backend_url}${data?.images[0]}`}
+            alt=""
+            className="w-[70px] lg:w-[130px] h-min ml-2 mr-2 rounded-[5px]"
+          />
+          <div className="pl-[5px]">
+            <Link to="/">
+              {/* <h1>{data.name}</h1> */}
+              <h1>
+                {data.name.length > 40
+                  ? data.name.slice(0, 40) + "..."
+                  : data.name}
+              </h1>
+            </Link>
+            <h4 className="font-[400] text-[15px] text-[#00000082]">
+              <NumericFormat
+                value={data.discountPrice}
+                displayType={"text"}
+                thousandSeparator={true}
+                prefix={"Ksh. "}
+              />
+              x {value}
+            </h4>
+            <h4 className="font-[600] text-[17px] pt-[3px] text-[#d02222] font-Roboto">
+              <NumericFormat
+                value={totalPrice}
+                displayType={"text"}
+                thousandSeparator={true}
+                prefix={"Ksh. "}
+              />
+            </h4>
+          </div>
+
+          <AiFillDelete
+            className="cursor-pointer min-w-[20px]"
+            onClick={() => setModalOpen(true)}
+            size={24}
+            color={"rgb(240 11 11 / 86%)"}
+          />
         </div>
-        <RxCross1
-          className="cursor-pointer min-w-[20px]"
-          onClick={() => removeFromCartHandler(data)}
-        />
       </div>
-    </div>
+    </>
   );
 };
 

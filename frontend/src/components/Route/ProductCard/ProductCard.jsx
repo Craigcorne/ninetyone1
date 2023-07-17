@@ -140,16 +140,15 @@ const ProductCard = ({ data, isEvent }) => {
               <Ratings rating={data?.ratings} />
             </div>
             <div className="flex items-center justify-end">
-              {data?.sold_out !== 0 && (
-                <span className="font-[400] text-[14px] mx-3 text-[#68d284]">
-                  {data?.sold_out} sold
-                </span>
-              )}
+              <span className="font-[400] text-[14px] mx-3 text-[#68d284]">
+                {data.sold_out === 0 ? "New Product" : `${data.sold_out} sold`}
+              </span>
             </div>
 
             <div className="py-2 flex items-center justify-between">
               <div className="flex">
-                <h5 className={`${styles.productDiscountPrice}`}>
+                <h5 className={`${styles.productDiscountPrice} text-base flex`}>
+                  <p className="text-sm mr-1">Ksh</p>
                   <NumericFormat
                     value={
                       data.originalPrice === 0
@@ -158,11 +157,11 @@ const ProductCard = ({ data, isEvent }) => {
                     }
                     displayType={"text"}
                     thousandSeparator={true}
-                    prefix={"Ksh "}
+                    prefix={" "}
                   />
                 </h5>
-                <h5 className={`${styles.price}`}>
-                  {"Ksh " + data.originalPrice ? data.originalPrice : null}
+                <h5 className={`${styles.price} text-sm`}>
+                  {data.originalPrice ? data.originalPrice : null}
                 </h5>
               </div>
             </div>

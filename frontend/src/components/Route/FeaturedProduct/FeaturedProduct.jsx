@@ -9,7 +9,10 @@ const FeaturedProduct = () => {
 
   useEffect(() => {
     const allProductsData = allProducts ? [...allProducts] : [];
-    const firstFive = allProductsData && allProductsData.slice(0, 10);
+    const inStockProducts = allProductsData.filter(
+      (product) => product.stock > 0
+    );
+    const firstFive = inStockProducts.slice(0, 10);
     setData(firstFive);
   }, [allProducts]);
 
@@ -23,7 +26,10 @@ const FeaturedProduct = () => {
         <div className="overflow-x-auto flex space-x-4 mb-12 border-0 ">
           {data &&
             data.map((i, index) => (
-              <div className="flex-none w-[250px] h-[400px]" key={index}>
+              <div
+                className="flex-none h-[400px] w-[168px] sm:w-[250px]"
+                key={index}
+              >
                 <ProductCard data={i} />
               </div>
             ))}

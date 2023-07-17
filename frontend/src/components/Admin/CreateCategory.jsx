@@ -26,6 +26,7 @@ const CreateCategory = () => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [subCategoryName, setSubCategoryName] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const navigate = useNavigate();
 
@@ -125,15 +126,25 @@ const CreateCategory = () => {
     reader.readAsDataURL(selectedImage);
   };
 
-  const handleDeleteCategory = async (categoryId) => {
+  const handleDeleteCategory = (categoryId) => {
+    setSelectedCategory(categoryId);
+  };
+  const handleConfirmDelete = async () => {
     try {
-      await axios.delete(`${server}/category/delete-category/${categoryId}`);
+      await axios.delete(
+        `${server}/category/delete-category/${selectedCategory}`
+      );
       toast.success("Category deleted!");
       fetchCategories(); // Refresh the categories list after deletion
     } catch (error) {
       toast.error(error.response.data);
     }
   };
+
+  const handleCancelDelete = () => {
+    setSelectedCategory(null);
+  };
+
   return (
     <div className="w-full px-5">
       {open && (

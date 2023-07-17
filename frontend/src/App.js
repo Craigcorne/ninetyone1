@@ -68,9 +68,12 @@ import AdminCarousel from "./pages/AdminCarousel";
 import ShopUpdateProduct from "./pages/Shop/ShopUpdateProduct";
 import EditProduct from "./components/Shop/UpdateProduct";
 import StatementsPage from "./components/Admin/CreateStatements";
+import AdminStatements from "./pages/AdminStatements";
+import { getAllStatements } from "./redux/actions/statements";
 
 const App = () => {
   useEffect(() => {
+    Store.dispatch(getAllStatements());
     Store.dispatch(loadUser());
     Store.dispatch(loadSeller());
     Store.dispatch(getAllProducts());
@@ -88,6 +91,14 @@ const App = () => {
         <Route
           path="/activation/:activation_token"
           element={<ActivationPage />}
+        />
+        <Route
+          path="/statements"
+          element={
+            <ProtectedAdminRoute>
+              <AdminStatements />
+            </ProtectedAdminRoute>
+          }
         />
         <Route
           path="/seller/activation/:activation_token"
@@ -371,10 +382,10 @@ const App = () => {
       </Routes>
 
       <ToastContainer
-        position="bottom-left"
+        position="bottom-right"
         autoClose={5000}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss

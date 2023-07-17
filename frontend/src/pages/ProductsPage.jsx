@@ -34,7 +34,7 @@ const ProductsPage = () => {
   };
 
   useEffect(() => {
-    if (categoriesData === null) {
+    if (categoryData === null) {
       const d = allProducts;
       setData(d);
     } else {
@@ -105,7 +105,7 @@ const ProductsPage = () => {
           <Header activeHeading={3} />
           <br />
           <br />
-          <div className={`${styles.section} flex gap-[20px]`}>
+          <div className={`${styles.section} flex gap-[20px] appear__smoothly`}>
             {/* Category selection */}
             <div className="hidden lg:block ml-2 mb-2 w-48 text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
               <button
@@ -198,11 +198,13 @@ const ProductsPage = () => {
                       </option>
                       <option value="">All</option>
                       {categoriesData &&
-                        categoriesData.map((i) => (
-                          <option value={i.name} key={i.name}>
-                            {i.name}
-                          </option>
-                        ))}
+                        categoriesData
+                          .sort((a, b) => a.name.localeCompare(b.name)) // Sort categories alphabetically
+                          .map((i) => (
+                            <option value={i.name} key={i.name}>
+                              {i.name}
+                            </option>
+                          ))}
                     </select>
                   </div>
                 </div>

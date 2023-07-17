@@ -395,7 +395,7 @@ const UserOrderDetails = () => {
               <div className="flex flex-col justify-start items-start flex-shrink-0">
                 <div className="flex justify-center w-full md:justify-start items-center space-x-4 py-8 border-b border-gray-200">
                   <img
-                    src={`${backend_url}${user?.avatar}`}
+                    src={`${backend_url}${user.avatar}`}
                     alt="avatar"
                     className="w-[35px] h-[35px] rounded-full"
                   />

@@ -34,7 +34,7 @@ const productSchema = new mongoose.Schema({
   },
   condition: {
     type: String,
-    required: [true, "Please enter your product condition!"],
+    // required: [true, "Please enter your product condition!"],
   },
   images: [
     {
@@ -72,21 +72,21 @@ const productSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
-  variations: [
-    {
-      size: {
-        type: String,
-      },
-      stock: {
-        type: Number,
-        required: [true, "Please enter the stock for this variation!"],
-      },
-      sold_out: {
-        type: Number,
-        default: 0,
-      },
-    },
-  ],
+  // variations: [
+  //   {
+  //     size: {
+  //       type: String,
+  //     },
+  //     stock: {
+  //       type: Number,
+  //       required: [true, "Please enter the stock for this variation!"],
+  //     },
+  //     sold_out: {
+  //       type: Number,
+  //       default: 0,
+  //     },
+  //   },
+  // ],
   createdAt: {
     type: Date,
     default: Date.now(),

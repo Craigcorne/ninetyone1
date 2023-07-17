@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { brandingData } from "../../../static/data";
 import styles from "../../../styles/styles";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import axios from "axios";
@@ -8,81 +7,117 @@ import { backend_url, server } from "../../../server";
 
 const Categories = () => {
   const navigate = useNavigate();
+  const [hideLeftArrow, setHideLeftArrow] = useState(true);
+  const [hideRightArrow, setHideRightArrow] = useState(false);
+  const sliderRef = useRef(null);
+
   const [categoriesData, setCategoriesData] = useState([]);
 
   useEffect(() => {
-    fetchCategories();
+    const fetchCategoriesData = async () => {
+      try {
+        const response = await axios.get(`${server}/category/categories`);
+        setCategoriesData(response.data);
+      } catch (error) {
+        console.error("Error fetching categoriesData:", error);
+      }
+    };
+
+    fetchCategoriesData();
   }, []);
 
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(`${server}/category/categories`);
-      const sortedCategories = response.data.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-      setCategoriesData(sortedCategories);
-    } catch (error) {
-      console.error("Error:", error.response.data);
-    }
+  useEffect(() => {
+    const slider = sliderRef.current;
+    slider.addEventListener("scroll", handleScroll);
+
+    return () => {
+      slider.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const submitHandle = (category) => {
+    navigate(`/products?category=${category.name}`);
+    // window.location.reload();
   };
 
-  // scrolls
+  const handleScroll = () => {
+    const slider = sliderRef.current;
+    const isAtStart = slider.scrollLeft === 0;
+    const isAtEnd =
+      slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth;
+
+    setHideLeftArrow(isAtStart);
+    setHideRightArrow(isAtEnd);
+  };
+
   const slideLeft = () => {
-    var slider = document.getElementById("slider");
-    slider.scrollLeft = slider.scrollLeft - 500;
+    const slider = sliderRef.current;
+    slider.scrollLeft -= 250;
   };
+
   const slideRight = () => {
-    var slider = document.getElementById("slider");
-    slider.scrollLeft = slider.scrollLeft + 500;
+    const slider = sliderRef.current;
+    slider.scrollLeft += 250;
   };
+
+  const handleSubmit = (category) => {
+    navigate(`/products?category=${category.title}`);
+  };
+
   return (
     <>
+      {/* Branding component */}
       <div className={`${styles.section} hidden sm:block`}>
-        <div
-          className={`branding my-12 flex justify-between w-full shadow-sm bg-white p-5 rounded-md`}
-        >
-          {brandingData &&
-            brandingData.map((i, index) => (
-              <div className="flex items-start" key={index}>
-                {i.icon}
-                <div className="px-3">
-                  <h3 className="font-bold text-sm md:text-base">{i.title}</h3>
-                  <p className="text-xs md:text-sm">{i.Description}</p>
-                </div>
-              </div>
-            ))}
-        </div>
+        {/* Branding content */}
       </div>
-      <div className={`${styles.section}`}>
-        <div className={`${styles.heading}`}>
-          <h1>Categories</h1>
-        </div>
-      </div>
-      <div className="scrollDivScroll">
-        <MdChevronLeft className="rightScroll" onClick={slideLeft} size={40} />
+
+      {/* Categories component */}
+      <div className="mt-1 lg:mt-6 ">
         <div
-          className={`${styles.section} bg-white p-6 rounded-lg mb-12`}
+          className={`${styles.section} relative  bg-white lg:p-6 sm:p-2 rounded-lg lg:mb-12 sm:mb-3 `}
           id="categories"
         >
+          {!hideLeftArrow && (
+            <MdChevronLeft
+              className="absolute z-10 top-[37%] rounded-full left-[-11px] bg-[#f9f4f4]"
+              onClick={slideLeft}
+              size={35}
+            />
+          )}
+
           <div
-            className="categoryCard"
+            className="overflow-x-auto flex space-x-4 border-0 scroll__bar"
             id="slider"
+            ref={sliderRef}
             style={{ scrollBehavior: "smooth" }}
           >
-            {categoriesData.map((category) => (
-              <div className="categoryCardDetails" key={category._id}>
-                <h5>{category.name}</h5>
-                <img
-                  src={`${backend_url}${category?.image}`}
-                  className="w-[120px] object-cover"
-                  alt=""
-                />
-                {/* Display sub-categories */}
-              </div>
-            ))}
+            {categoriesData &&
+              categoriesData
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((category, index) => (
+                  <div
+                    className="border mb-2 p-3 min-w-[100px] w-fit h-[100px] lg:h-[120px] rounded-md cursor-pointer"
+                    key={index}
+                    onClick={() => submitHandle(category)}
+                  >
+                    <p className="text-sm">{category.name}</p>
+                    <img
+                      src={`${backend_url}${category?.image}`}
+                      className="lg:w-[170px] sm:w-[100px] object-cover h-[60px] lg:h-[80px]"
+                      alt=""
+                    />
+                  </div>
+                ))}
           </div>
+
+          {!hideRightArrow && (
+            <MdChevronRight
+              className="absolute z-10 top-[37%] rounded-full right-[-11px] bg-[#f9f4f4]"
+              onClick={slideRight}
+              size={35}
+            />
+          )}
         </div>
-        <MdChevronRight className="leftScroll" onClick={slideRight} size={40} />
       </div>
     </>
   );
