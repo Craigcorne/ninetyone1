@@ -304,6 +304,7 @@ input[type="number"] {
   color: #f0c040;
 }
 /* /// */
+
 /* componets that appears on top of others to appear smoothly */
 .appear__smoothly {
   animation-name: appear-smoothly-animation;

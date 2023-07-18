@@ -94,7 +94,7 @@ const Footer = () => {
       <div className="grid grid-cols-1 sm:gird-cols-3 lg:grid-cols-4 gap-6 sm:px-8 px-5 py-4 lg:py-8 sm:text-center">
         <ul className="text-center sm:text-start flex sm:block flex-col items-center">
           <img
-            src="https://res.cloudinary.com/bramuels/image/upload/v1689346467/logo_transparent_mrwg4g.png"
+            src="https://shopo.quomodothemes.website/assets/images/logo.svg"
             className="w-28 h-28 m-auto"
             alt=""
             style={{ filter: "brightness(0) invert(1)" }}
@@ -116,14 +116,15 @@ const Footer = () => {
               style={{ marginLeft: "15px", cursor: "pointer" }}
             />
             <a
-              href="https://api.whatsapp.com/send?phone=YOUR_PHONE_NUMBER"
+              href="https://api.whatsapp.com/send?phone=254741895028&text=Hey%20NinetyOne,%20what%20do%20I%20add"
               target="_blank"
               rel="noopener noreferrer"
+              className="fixed bottom-16 lg:bottom-4 right-4 bg-green-500 text-white rounded-full p-3 hover:bg-green-600 transition duration-300 z-10 flex items-center justify-center group"
             >
-              <AiOutlineWhatsApp
-                size={25}
-                style={{ marginLeft: "15px", cursor: "pointer" }}
-              />
+              <AiOutlineWhatsApp size={24} />
+              <span className="smart-text hidden group-hover:inline-block ml-2">
+                Chat with us
+              </span>
             </a>
           </div>
         </ul>
@@ -187,7 +188,7 @@ const Footer = () => {
         </div>
       </div>
       <a
-        href="https://api.whatsapp.com/send?phone=254712012113&text=Hey%20Brams,%20what%20do%20I%20add"
+        href="https://api.whatsapp.com/send?phone=254726327352&text=Hey%20Craig,%20what%20do%20I%20add"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-16 lg:bottom-4 right-4 bg-green-500 text-white rounded-full p-3 hover:bg-green-600 transition duration-300 z-10 flex items-center justify-center group"
