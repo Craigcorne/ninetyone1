@@ -70,6 +70,7 @@ import EditProduct from "./components/Shop/UpdateProduct";
 import StatementsPage from "./components/Admin/CreateStatements";
 import AdminStatements from "./pages/AdminStatements";
 import { getAllStatements } from "./redux/actions/statements";
+import AdminDestination from "./pages/AdminDestinations";
 
 const App = () => {
   useEffect(() => {
@@ -296,6 +297,14 @@ const App = () => {
           element={
             <ProtectedAdminRoute>
               <AdminDashboardPage />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/shippingadd"
+          element={
+            <ProtectedAdminRoute>
+              <AdminDestination />
             </ProtectedAdminRoute>
           }
         />

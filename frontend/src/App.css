@@ -223,6 +223,13 @@ input[type="number"] {
 .scrollDivScroll {
   position: relative;
 }
+.large-screen {
+  /* Apply the spacing only for screens with a minimum width of 1200px (adjust as needed) */
+  @media (min-width: 1200px) {
+    margin-left: 200px;
+    margin-right: 200px; /* Adjust the margin value for large screens */
+  }
+}
 .categoryCardDetails {
   display: block;
   border: 0 solid #c4bebe;

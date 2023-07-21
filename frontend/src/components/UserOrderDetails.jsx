@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BsFillBagFill } from "react-icons/bs";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../styles/styles";
 import { getAllOrdersOfUser } from "../redux/actions/order";
@@ -12,10 +12,11 @@ import { toast } from "react-toastify";
 import { NumericFormat } from "react-number-format";
 import moment from "moment";
 import { BiPhoneCall } from "react-icons/bi";
+import Typed from "react-typed";
 
 const UserOrderDetails = () => {
   const { orders } = useSelector((state) => state.order);
-  const { user } = useSelector((state) => state.user);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [comment, setComment] = useState("");
@@ -23,6 +24,7 @@ const UserOrderDetails = () => {
   const [rating, setRating] = useState(1);
 
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getAllOrdersOfUser(user._id));
@@ -84,7 +86,29 @@ const UserOrderDetails = () => {
       });
   };
 
-  // console.log(data);
+  // const [imgSrc, setImgSrc] = useState(`${backend_url}${data?.user.avatar}`);
+
+  const handleMessageSubmit = async () => {
+    if (isAuthenticated) {
+      const groupTitle = data._id + user._id;
+      const userId = user._id;
+      const sellerId = data.shop._id;
+      await axios
+        .post(`${server}/conversation/create-new-conversation`, {
+          groupTitle,
+          userId,
+          sellerId,
+        })
+        .then((res) => {
+          navigate(`/inbox?${res.data.conversation._id}`);
+        })
+        .catch((error) => {
+          toast.error(error.response.data.message);
+        });
+    } else {
+      toast.error("Please login to create a conversation");
+    }
+  };
 
   return (
     <>
@@ -97,11 +121,11 @@ const UserOrderDetails = () => {
             </div>
           </div>
           <h1 className="text-[20px] dark:text-white lg:text-4xl font-semibold leading-7 lg:leading-9 text-gray-800">
-            Order No: {data?._id}
+            Order No: {data?._id.replace(/\D/g, "").slice(0, 10)}
           </h1>
           <p className="text-base dark:text-gray-300 font-medium leading-6 text-gray-600">
             <p className="dark:text-gray-400 text-gray-300">Placed on: </p>{" "}
-            {moment(data?.createdAt).format("MMMM Do YYYY")}
+            {moment(data?.createdAt).format("MMMM Do YYYY, h:mm:ss a")}
           </p>
         </div>
         <div className="mt-10 flex flex-col xl:flex-row jusitfy-center items-stretch w-full xl:space-x-8 space-y-4 md:space-y-6 xl:space-y-0">
@@ -115,26 +139,26 @@ const UserOrderDetails = () => {
                   return (
                     <div
                       key={index}
-                      className="mt-4 md:mt-6 flex flex-col md:flex-row justify-start items-start md:items-center md:space-x-6 xl:space-x-8 w-full"
+                      className="mt-4 md:mt-6 flex md:flex-row justify-start items-start md:items-center md:space-x-6 xl:space-x-8"
                     >
-                      <div className="pb-4 md:pb-8 w-full md:w-40">
+                      <div className="pb-4 md:pb-8 flex">
                         <img
-                          className="w-full hidden md:block"
+                          className="w-36 h-36 hidden md:block object-contain"
                           src={`${backend_url}/${item.images[0]}`}
                           alt="dress"
                         />
                         <img
-                          className="w-full md:hidden"
+                          className="w-36 h-36 md:hidden object-contain"
                           src={`${backend_url}/${item.images[0]}`}
                           alt="dress"
                         />
                       </div>
-                      <div className="border-b border-gray-200 md:flex-row flex-col flex justify-between items-start w-full pb-8 space-y-4 md:space-y-0">
-                        <div className="w-full flex flex-col justify-start items-start space-y-8">
-                          <h3 className="text-[20px] dark:text-white font-semibold leading-6 text-gray-800">
+                      <div className="ml-3 lg:ml-0 border-b border-gray-200 md:flex-row flex-col flex justify-between items-start w-80 lg:w-full pb-8">
+                        <div className="w-full flex flex-col justify-start items-start">
+                          <h3 className="dark:text-white font-semibold leading-6 text-gray-800">
                             {item.name}
                           </h3>
-                          <div className="flex justify-start items-start flex-col space-y-2">
+                          <div className="flex justify-start items-start flex-col">
                             {!item.isReviewed &&
                             data?.status === "Delivered" ? (
                               <div
@@ -148,7 +172,7 @@ const UserOrderDetails = () => {
                             ) : null}
                           </div>
                         </div>
-                        <div className="flex justify-between space-x-8 items-start w-full">
+                        <div className="flex justify-between items-start w-full ">
                           <p className="text-base dark:text-white xl:text-lg leading-6">
                             <NumericFormat
                               value={item.discountPrice}
@@ -157,18 +181,8 @@ const UserOrderDetails = () => {
                               prefix={"Ksh. "}
                               suffix={" "}
                             />{" "}
-                            <span className="text-red-300 line-through">
-                              {" "}
-                              <NumericFormat
-                                value={item.originalPrice}
-                                displayType={"text"}
-                                thousandSeparator={true}
-                                prefix={"Ksh. "}
-                                suffix={" "}
-                              />
-                            </span>
                           </p>
-                          <p className="text-base dark:text-white xl:text-lg leading-6 text-gray-800">
+                          <p className="text-base dark:text-white xl:text-lg leading-6 text-gray-800 large-screen">
                             {item.qty}
                           </p>
                           <p className="text-base dark:text-white xl:text-lg font-semibold leading-6 text-gray-800">
@@ -299,26 +313,31 @@ const UserOrderDetails = () => {
                       />
                     </p>
                   </div>
-                  <div className="flex justify-between items-center w-full">
-                    <p className="text-base dark:text-white leading-4 text-gray-800">
-                      Discount{" "}
-                      <span className="bg-gray-200 p-1 text-xs font-medium dark:bg-white dark:text-gray-800 leading-3 text-gray-800">
-                        exclusive
-                      </span>
-                    </p>
-                    <p className="text-base dark:text-gray-300 leading-4 text-gray-600">
-                      <NumericFormat
-                        value={
-                          data?.totalPrice -
-                          Math.round(subTotals * 0.1) -
-                          subTotals
-                        }
-                        displayType={"text"}
-                        thousandSeparator={true}
-                        prefix={"Ksh. "}
-                      />
-                    </p>
-                  </div>
+                  {Math.round(
+                    data?.totalPrice - Math.round(subTotals * 0.1) - subTotals
+                  ) > 0 && (
+                    <div className="flex justify-between items-center w-full">
+                      <p className="text-base dark:text-white leading-4 text-gray-800">
+                        Discount{" "}
+                        <span className="bg-gray-200 p-1 text-xs font-medium dark:bg-white dark:text-gray-800 leading-3 text-gray-800">
+                          exclusive
+                        </span>
+                      </p>
+                      <p className="text-base dark:text-gray-300 leading-4 text-gray-600">
+                        <NumericFormat
+                          value={Math.round(
+                            data?.totalPrice -
+                              Math.round(subTotals * 0.1) -
+                              subTotals
+                          )}
+                          displayType={"text"}
+                          thousandSeparator={true}
+                          prefix={"Ksh. "}
+                        />
+                      </p>
+                    </div>
+                  )}
+
                   <div className="flex justify-between items-center w-full">
                     <p className="text-base dark:text-white leading-4 text-gray-800">
                       Shipping
@@ -339,7 +358,7 @@ const UserOrderDetails = () => {
                   </p>
                   <p className="text-base dark:text-gray-300 font-semibold leading-4 text-gray-600">
                     <NumericFormat
-                      value={data?.totalPrice}
+                      value={Math.round(data?.totalPrice)}
                       displayType={"text"}
                       thousandSeparator={true}
                       prefix={"Ksh. "}
@@ -380,9 +399,12 @@ const UserOrderDetails = () => {
                   </p>
                 </div>
                 <div className="w-full flex justify-center items-center">
-                  <button className="hover:bg-black rounded-md dark:bg-white dark:text-gray-800 dark:hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 py-5 w-96 md:w-full bg-gray-800 text-base font-medium leading-4 text-white">
-                    Send Us Message
-                  </button>
+                  <Link
+                    to="/contact"
+                    className="hover:bg-black rounded-md text-center dark:bg-white dark:text-gray-800 dark:hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 py-5 w-96 md:w-full bg-gray-800 text-base font-medium leading-4 text-white"
+                  >
+                    Send Us Email
+                  </Link>
                 </div>
               </div>
             </div>
@@ -393,11 +415,11 @@ const UserOrderDetails = () => {
             </h3>
             <div className="flex flex-col md:flex-row xl:flex-col justify-start items-stretch h-full w-full md:space-x-6 lg:space-x-8 xl:space-x-0">
               <div className="flex flex-col justify-start items-start flex-shrink-0">
-                <div className="flex justify-center w-full md:justify-start items-center space-x-4 py-8 border-b border-gray-200">
+                <div className="flex w-full md:justify-start items-center space-x-4 py-8 border-b border-gray-200">
                   <img
                     src={`${backend_url}${user.avatar}`}
-                    alt="avatar"
-                    className="w-[35px] h-[35px] rounded-full"
+                    className="w-[60px] h-[60px] rounded-full avatarimg"
+                    alt=""
                   />
                   <div className="flex justify-start items-start flex-col space-y-2">
                     <p className="text-base dark:text-white font-semibold leading-4 text-left text-gray-800">
@@ -411,7 +433,7 @@ const UserOrderDetails = () => {
 
                 <div className="">
                   <div className="block">
-                    <div className="flex justify-center text-gray-800 dark:text-white md:justify-start items-center space-x-4 pt-4 w-full">
+                    <div className="flex justify-center text-gray-800 dark:text-white items-center space-x-4 pt-4 w-full">
                       <img
                         className="dark:hidden"
                         src="https://tuk-cdn.s3.amazonaws.com/can-uploader/order-summary-3-svg1.svg"
@@ -426,7 +448,7 @@ const UserOrderDetails = () => {
                         {data?.user.email}
                       </p>
                     </div>
-                    <div className="flex justify-center text-gray-800 dark:text-white md:justify-start items-center space-x-4 pb-4 border-b border-gray-200 w-full">
+                    <div className="flex text-gray-800 dark:text-white items-center space-x-4 pb-4 border-b border-gray-200 w-full">
                       <BiPhoneCall size={25} className="dark:hidden" />
                       <BiPhoneCall size={25} className="hidden dark:block" />
 
@@ -443,7 +465,9 @@ const UserOrderDetails = () => {
                     <p className="text-base dark:text-white font-semibold leading-4 text-center md:text-left text-gray-800">
                       Shipping Address
                     </p>
-
+                    <p className="w-48 mt-5 lg:w-full dark:text-gray-300 xl:w-48 text-center md:text-left text-sm leading-5 text-gray-600">
+                      {data?.user.phoneNumber}
+                    </p>
                     <p className="w-48 lg:w-full dark:text-gray-300 xl:w-48 text-center md:text-left text-sm leading-5 text-gray-600">
                       {data?.shippingAddress.country}
                     </p>
@@ -454,7 +478,6 @@ const UserOrderDetails = () => {
                       {data?.shippingAddress.town}
                     </p>
                   </div>
-
                   <div className="flex justify-center md:justify-start items-center md:items-start flex-col space-y-4">
                     <p className="text-base dark:text-white font-semibold leading-4 text-center md:text-left text-gray-800">
                       Payment Info:{" "}
@@ -471,7 +494,7 @@ const UserOrderDetails = () => {
                         : "Processing"}{" "}
                     </p>
                   </div>
-                  <div className="flex justify-center md:justify-start items-center md:items-start flex-col">
+                  {/* <div className="flex justify-center md:justify-start items-center md:items-start flex-col">
                     <p className="text-base dark:text-white font-semibold leading-4 text-center md:text-left text-gray-800">
                       Request a refund
                     </p>
@@ -481,17 +504,29 @@ const UserOrderDetails = () => {
                           className={`${styles.button} text-white`}
                           onClick={refundHandler}
                         >
-                          Request a Refund
+                          Request a Refund:
                         </div>
+                      ) : data?.status === "Processing refund" ? (
+                        <p className="mt-2">
+                          Refund Requested. It's being Processed
+                        </p>
                       ) : (
-                        <p>Refunds only available after delivery</p>
+                        <p className="mt-2">
+                          Refunds only available after delivery
+                        </p>
                       )}
                     </p>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex w-full mt-2 justify-center items-center md:justify-start md:items-start">
-                  <button className="mt-6 md:mt-0 dark:border-white dark:hover:bg-gray-900 dark:bg-transparent dark:text-white py-5 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 border border-gray-800 rounded-md font-medium w-96 2xl:w-full text-base leading-4 text-gray-800">
-                    Asante! Karibu Tena!
+                  <button className="mt-6 md:mt-0 dark:border-white dark:hover:bg-gray-900 dark:bg-transparent dark:text-white py-3 hover:bg-gray-200 outline-none ring-2 ring-offset-2 ring-gray-800 border border-gray-800 rounded-md font-medium w-96 2xl:w-full text-base leading-4 text-gray-800">
+                    <Typed
+                      className="text-black"
+                      strings={["Asante Sana! Karibu Tena! 🥰"]}
+                      typeSpeed={40}
+                      backSpeed={50}
+                      loop
+                    />
                   </button>
                 </div>
               </div>

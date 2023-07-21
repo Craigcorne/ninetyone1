@@ -6,7 +6,11 @@ import { CiMoneyBill, CiSettings } from "react-icons/ci";
 import { Link } from "react-router-dom";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { BsHandbag } from "react-icons/bs";
-import { MdOutlineLocalOffer, MdOutlineViewCarousel } from "react-icons/md";
+import {
+  MdDeliveryDining,
+  MdOutlineLocalOffer,
+  MdOutlineViewCarousel,
+} from "react-icons/md";
 import { AiOutlineScan, AiOutlineSetting } from "react-icons/ai";
 import { BiCategoryAlt } from "react-icons/bi";
 
@@ -181,6 +185,21 @@ const AdminSideBar = ({ active }) => {
             }`}
           >
             Create Statements
+          </h5>
+        </Link>
+      </div>
+      <div className="w-full flex items-center p-4">
+        <Link to="/shippingadd" className="w-full flex items-center">
+          <MdDeliveryDining
+            size={30}
+            color={`${active === 13 ? "crimson" : "#555"}`}
+          />
+          <h5
+            className={`hidden 800px:block pl-2 text-[18px] font-[400] ${
+              active === 13 ? "text-[crimson]" : "text-[#555]"
+            }`}
+          >
+            Create Destination
           </h5>
         </Link>
       </div>
