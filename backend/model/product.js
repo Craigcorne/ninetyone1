@@ -17,6 +17,9 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter your product tags!"],
   },
+  video: {
+    type: String,
+  },
   originalPrice: {
     type: Number,
   },

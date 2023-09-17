@@ -12,14 +12,15 @@ import { NumericFormat } from "react-number-format";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import Spinner from "../Spinner";
-import mpesa from "./mpesa.png";
+import mpesa1 from "./mpesa1.png";
 
 const Payment = () => {
   const { user } = useSelector((state) => state.user);
-
+  const { statements } = useSelector((state) => state.statements);
   const [orderData, setOrderData] = useState([]);
   const [open, setOpen] = useState(false);
   const [loading1, setLoading1] = useState(false);
+  const [loading2, setLoading2] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,38 +28,10 @@ const Payment = () => {
     const orderData = JSON.parse(localStorage.getItem("latestOrder"));
     setOrderData(orderData);
   }, []);
+  const exchangeRate = statements?.map((i) => i.exchangeRate);
+  const paypalTotals = (orderData?.totalPrice / exchangeRate).toFixed(2);
 
-  const fetchExchangeRate = async () => {
-    const apiKey = "de9aceb0cab6489f996549302a9d7298"; // Replace with your actual API key
-    const baseCurrency = "KES"; // Currency you want to convert from
-    const targetCurrency = "USD"; // Currency you want to convert to
-
-    const url = `https://openexchangerates.org/api/latest.json?app_id=${apiKey}&base=${baseCurrency}&symbols=${targetCurrency}`;
-
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      const exchangeRate = data.rates[targetCurrency];
-
-      console.log(
-        `Exchange rate from ${baseCurrency} to ${targetCurrency}: ${exchangeRate}`
-      );
-
-      // Now you can use the exchangeRate to convert your totalPrice
-      const totalPriceKES = orderData?.totalPrice; // Assuming totalPrice is in KES
-      const totalPriceUSD = totalPriceKES / exchangeRate;
-
-      console.log(`Total Price in USD: ${totalPriceUSD}`);
-
-      // Use the totalPriceUSD in your PayPal integration code
-    } catch (error) {
-      console.error("Error fetching exchange rate:", error);
-    }
-  };
-
-  fetchExchangeRate();
-
-  const createOrder = (data, totalPriceUSD, actions) => {
+  const createOrder = (data, actions) => {
     return actions.order
       .create({
         purchase_units: [
@@ -66,11 +39,10 @@ const Payment = () => {
             description: "Sunflower",
             amount: {
               currency_code: "USD",
-              value: orderData?.totalPrice,
+              value: paypalTotals,
             },
           },
         ],
-        // not needed if a shipping address is actually needed
         application_context: {
           shipping_preference: "NO_SHIPPING",
         },
@@ -85,6 +57,8 @@ const Payment = () => {
     shippingAddress: orderData?.shippingAddress,
     user: user && user,
     totalPrice: orderData?.totalPrice,
+    shippingPrice: orderData.shippingPrice,
+    discount: orderData.discountPrice,
   };
 
   const onApprove = async (data, actions) => {
@@ -100,6 +74,7 @@ const Payment = () => {
   };
 
   const paypalPaymentHandler = async (paymentInfo) => {
+    setLoading2(true);
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -124,6 +99,7 @@ const Payment = () => {
           window.location.reload();
         }, 2000);
       });
+    setLoading2(false);
   };
 
   const cashOnDeliveryHandler = async (e) => {
@@ -151,11 +127,9 @@ const Payment = () => {
           setTimeout(() => {
             window.location.reload();
           }, 2000);
-          // await axios.post(`${server}/order/send-order-email`, order, config);
         });
       setLoading1(false);
     } catch (error) {
-      console.log(error);
       setLoading1(false);
     }
 
@@ -201,8 +175,8 @@ const Payment = () => {
             createOrder={createOrder}
             cashOnDeliveryHandler={cashOnDeliveryHandler}
             loading1={loading1}
+            loading2={loading2}
             mpesaPaymentHandler={mpesaPaymentHandler}
-            orderData={orderData}
           />
         </div>
         <div className="w-full 800px:w-[35%] 800px:mt-0 mt-8">
@@ -222,13 +196,15 @@ const mpesaSchema = yup.object({
 });
 const PaymentInfo = ({
   user,
+  mpesaPaymentHandler,
   open,
   setOpen,
   onApprove,
   createOrder,
+  paymentHandler,
   cashOnDeliveryHandler,
   loading1,
-  orderDetails,
+  loading2,
 }) => {
   const [select, setSelect] = useState(1);
   const [orderData, setOrderData] = useState([]);
@@ -238,6 +214,7 @@ const PaymentInfo = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [validating, setValidating] = useState(false);
+  const [limit, setLimit] = useState(false);
 
   useEffect(() => {
     const orderData = JSON.parse(localStorage.getItem("latestOrder"));
@@ -247,7 +224,6 @@ const PaymentInfo = ({
 
   var reqcount = 0;
   const navigate = useNavigate();
-
   const stkPushQuery = (checkOutRequestID) => {
     const timer = setInterval(() => {
       reqcount += 1;
@@ -271,39 +247,39 @@ const PaymentInfo = ({
             clearInterval(timer);
             //successfull payment
             setLoading(false);
-            setTimeout(async () => {
-              const config = {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              };
-              const order = {
-                cart: orderData?.cart,
-                shippingAddress: orderData?.shippingAddress,
-                user: user && user,
-                totalPrice: orderData?.totalPrice,
-              };
+            // setTimeout(async () => {
+            //   const config = {
+            //     headers: {
+            //       "Content-Type": "application/json",
+            //     },
+            //   };
+            //   const order = {
+            //     cart: orderData?.cart,
+            //     shippingAddress: orderData?.shippingAddress,
+            //     shippingPrice: orderData.shippingPrice,
+            //     user: user && user,
+            //     totalPrice: orderData?.totalPrice,
+            //   };
 
-              order.paymentInfo = {
-                type: "Mpesa",
-                status: "succeeded",
-              };
-              await axios
-                .post(`${server}/order/create-order`, order, config)
-                .then((res) => {
-                  setOpen(false);
-                  navigate("/order/success");
-                  toast.success("Your Payment is Sucessful and order placed");
-                  localStorage.setItem("cartItems", JSON.stringify([]));
-                  localStorage.setItem("latestOrder", JSON.stringify([]));
-                  setTimeout(() => {
-                    window.location.reload();
-                  });
-                });
-            }, 10000);
-            toast.success("Your Payment is Validating");
+            //   order.paymentInfo = {
+            //     type: "Mpesa",
+            //     status: "succeeded",
+            //   };
+            //   await axios
+            //     .post(`${server}/order/create-order`, order, config)
+            //     .then((res) => {
+            //       setOpen(false);
+            //       navigate("/order/success");
+            //       toast.success("Your Payment is Sucessful and order placed");
+            //       localStorage.setItem("cartItems", JSON.stringify([]));
+            //       localStorage.setItem("latestOrder", JSON.stringify([]));
+            //       setTimeout(() => {
+            //         window.location.reload();
+            //       }, 5000);
+            //     });
+            // }, 10000);
+            // toast.success("Your Payment is Validating");
           } else if (response.errorCode === "500.001.1001") {
-            // console.log(response.errorMessage);
           } else {
             clearInterval(timer);
             setLoading(false);
@@ -317,7 +293,6 @@ const PaymentInfo = ({
           }
         })
         .catch((err) => {
-          // toast.error(err.message);
           console.log(err.message);
         });
     }, 2000);
@@ -332,12 +307,6 @@ const PaymentInfo = ({
     onSubmit: async (values) => {
       const phone = values.phone;
       const amount = amount1;
-      // if (amount >= 150000) {
-      //   setLimit(true);
-      //   setError(false);
-      //   setSuccess(false);
-      //   setValidating(false);
-      // }
       await setLoading(true);
       await axios
         .post(
@@ -364,11 +333,6 @@ const PaymentInfo = ({
         });
     },
   });
-
-  const { shippingAddress } = orderData;
-  const county = shippingAddress?.county || "";
-
-  const isPickupAvailable = county === "Nairobi City";
 
   const myClickHandler = (e, props) => {
     setOpen(props);
@@ -426,11 +390,11 @@ const PaymentInfo = ({
               <div className="items-center">
                 <img
                   className="w-[125px] h-[125px] m-auto"
-                  src={mpesa}
+                  src={mpesa1}
                   alt="mpesaImg"
                 />
               </div>
-              <form className="pt-2" onSubmit={formik.handleSubmit}>
+              <form className="pt-2 " onSubmit={formik.handleSubmit}>
                 <div className="w-full flex pb-3">
                   <label className=" w-[50%] pb-2 mt-[11px]">
                     Total Amount
@@ -531,12 +495,12 @@ const PaymentInfo = ({
             </div>
             {open && (
               <div
-                onClick={(e) => myClickHandler(e, false)}
                 className="w-full fixed top-0 left-0 bg-[#00000039] h-screen flex items-center justify-center z-[99999] appear__smoothly"
+                onClick={(e) => myClickHandler(e, false)}
               >
                 <div
+                  className="w-full 800px:w-[30%] 800px:h-[60vh] bg-white rounded-[5px] shadow flex flex-col justify-center p-8 relative overflow-y-scroll"
                   onClick={(e) => myClickHandler(e, true)}
-                  className="w-full 800px:w-[40%] h-screen 800px:h-[80vh] bg-white rounded-[5px] shadow flex flex-col justify-center p-8 relative overflow-y-scroll"
                 >
                   <div className="w-full flex justify-end p-3">
                     <RxCross1
@@ -545,18 +509,45 @@ const PaymentInfo = ({
                       onClick={(e) => myClickHandler(e, false)}
                     />
                   </div>
-                  <PayPalScriptProvider
-                    options={{
-                      "client-id":
-                        "Aczac4Ry9_QA1t4c7TKH9UusH3RTe6onyICPoCToHG10kjlNdI-qwobbW9JAHzaRQwFMn2-k660853jn",
-                    }}
-                  >
-                    <PayPalButtons
-                      style={{ layout: "vertical" }}
-                      onApprove={onApprove}
-                      createOrder={createOrder}
-                    />
-                  </PayPalScriptProvider>
+                  {loading2 ? (
+                    <button
+                      disabled
+                      type="button"
+                      class="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 inline-flex items-center"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        role="status"
+                        class="inline w-4 h-4 mr-3 text-gray-200 animate-spin dark:text-gray-600"
+                        viewBox="0 0 100 101"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                          fill="currentColor"
+                        />
+                        <path
+                          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                          fill="#1C64F2"
+                        />
+                      </svg>
+                      Validating payment...
+                    </button>
+                  ) : (
+                    <PayPalScriptProvider
+                      options={{
+                        "client-id":
+                          "Aczac4Ry9_QA1t4c7TKH9UusH3RTe6onyICPoCToHG10kjlNdI-qwobbW9JAHzaRQwFMn2-k660853jn",
+                      }}
+                    >
+                      <PayPalButtons
+                        style={{ layout: "vertical" }}
+                        onApprove={onApprove}
+                        createOrder={createOrder}
+                      />
+                    </PayPalScriptProvider>
+                  )}
                 </div>
               </div>
             )}
@@ -584,60 +575,33 @@ const PaymentInfo = ({
         {/* cash on delivery */}
         {select === 3 ? (
           <div className="w-full flex">
-            <form className="w-full" onSubmit={cashOnDeliveryHandler}>
-              <input
+            <form
+              className="w-full appear__smoothly"
+              onSubmit={cashOnDeliveryHandler}
+            >
+              <button
                 type="submit"
                 disabled={loading1}
-                value={loading1 ? "loading..." : "Confirm"}
                 className={`${styles.button} !bg-[#f63b60] text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
-              />
+              >
+                {loading1 ? (
+                  <p className="flex mx-3">
+                    <Spinner /> Processing...
+                  </p>
+                ) : (
+                  <p className="">Confirm</p>
+                )}
+              </button>
             </form>
           </div>
         ) : null}
       </div>
-
-      {/* pick up Point */}
-
-      {isPickupAvailable && (
-        <div className="appear__smoothly">
-          <div className="flex w-full pb-5 border-b mb-2">
-            <div
-              className="w-[25px] h-[25px] rounded-full bg-transparent border-[3px] border-[#1d1a1ab4] relative flex items-center justify-center"
-              onClick={() => setSelect(4)}
-            >
-              {select === 4 ? (
-                <div className="w-[13px] h-[13px] bg-[#1d1a1acb] rounded-full" />
-              ) : null}
-            </div>
-            <h4 className="text-[18px] pl-2 font-[600] text-[#000000b1]">
-              Pickup Point
-            </h4>
-          </div>
-
-          {/* Pickup point */}
-          {select === 4 ? (
-            <div className="w-full flex">
-              <form
-                className="w-full appear__smoothly"
-                onSubmit={cashOnDeliveryHandler}
-              >
-                <input
-                  type="submit"
-                  disabled={loading1}
-                  value={loading1 ? "loading..." : "Confirm"}
-                  className={`${styles.button} !bg-[#f63b60] text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
-                />
-              </form>
-            </div>
-          ) : null}
-        </div>
-      )}
     </div>
   );
 };
 
 const CartData = ({ orderData }) => {
-  const shipping = orderData?.shipping?.toFixed(2);
+  const shipping = orderData?.shippingPrice?.toFixed(2);
   return (
     <div className="w-full bg-[#fff] rounded-md p-5 pb-8">
       <div className="flex justify-between">

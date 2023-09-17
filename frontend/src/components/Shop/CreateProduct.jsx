@@ -84,6 +84,7 @@ const CreateProduct = () => {
       discountPrice: "",
       stock: "",
       condition: "",
+      video: "",
     },
     validationSchema: createProductSchema,
     onSubmit: async (values) => {
@@ -95,6 +96,7 @@ const CreateProduct = () => {
       const discountPrice = values.discountPrice;
       const stock = values.stock;
       const condition = values.condition;
+      const video = values.video;
       const imagesi = images;
 
       const newForm = new FormData();
@@ -109,6 +111,7 @@ const CreateProduct = () => {
       newForm.append("originalPrice", originalPrice);
       newForm.append("discountPrice", discountPrice);
       newForm.append("stock", stock);
+      newForm.append("video", video);
       newForm.append("condition", condition);
       newForm.append("shopId", seller._id);
       dispatch(createProduct(newForm));
@@ -230,6 +233,22 @@ const CreateProduct = () => {
           />
           <div className="text-red-500">
             {formik.touched.tags && formik.errors.tags}
+          </div>
+        </div>
+        <br />
+        <div>
+          <label className="pb-2">Video</label>
+          <input
+            type="text"
+            name="video"
+            onChange={formik.handleChange("video")}
+            onBlur={formik.handleBlur("video")}
+            value={formik.values.video}
+            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Enter your product video link..."
+          />
+          <div className="text-red-500">
+            {formik.touched.video && formik.errors.video}
           </div>
         </div>
         <br />

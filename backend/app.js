@@ -44,9 +44,7 @@ const category = require("./controller/categories");
 const carousel = require("./controller/carousel");
 const mpesaRoutes = require("./routes/mpesa");
 const statements = require("./controller/statements");
-const country = require("./controller/country");
-const state = require("./controller/state");
-const town = require("./controller/town");
+const admin = require("./controller/admin");
 
 app.use("/api/v2/user", user);
 app.use("/api/v2/conversation", conversation);
@@ -62,9 +60,7 @@ app.use("/api/v2/mpesa", mpesaRoutes);
 app.use("/api/v2/category", category);
 app.use("/api/v2/carousel", carousel);
 app.use("/api/v2/statements", statements);
-app.use("/api/v2/country", country);
-app.use("/api/v2/state", state);
-app.use("/api/v2/town", town);
+app.use("/api/v2/destination", admin);
 
 // it's for ErrorHandling
 app.use(ErrorHandler);

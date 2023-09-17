@@ -12,17 +12,18 @@ const key = process.env.CONSUMER_KEY;
 const secret = process.env.CONSUMER_SECRET;
 
 const auth = new Buffer.from(`${key}:${secret}`).toString("base64");
-const newPassword = () => {
-  const dt = datetime.create();
-  const formatted = dt.format("YmdHMS");
-  const passString = short_code + pass_key + formatted;
-  const base64Encoded = Buffer.from(passString).toString("base64");
-  return base64Encoded;
-};
+// const newPassword = () => {
+//   const dt = datetime.create();
+//   const formatted = dt.format("YmdHMS");
+//   const passString = short_code + pass_key + formatted;
+//   const base64Encoded = Buffer.from(passString).toString("base64");
+//   return base64Encoded;
+// };
 
 exports.token = async (req, res, next) => {
   const key = process.env.CONSUMER_KEY;
   const secret = process.env.CONSUMER_SECRET;
+
   const auth = new Buffer.from(`${key}:${secret}`).toString("base64");
 
   await axios
@@ -48,6 +49,8 @@ exports.token = async (req, res, next) => {
 exports.stkPush = catchAsyncErrors(async (req, res, next) => {
   const phone = req.body.phone.substring(1); //formated to 72190........
   const amount = req.body.amount;
+
+  console.log(pass_key);
 
   // const token = this.getAccessToken;
   // const dt = datetime.create();
@@ -100,7 +103,7 @@ exports.stkPush = catchAsyncErrors(async (req, res, next) => {
         res.send(response.data);
       });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     // return next(new ErrorHandler(error.message, 500));
     return next(new ErrorHandler("Error occurred. Please try again", 500));
   }

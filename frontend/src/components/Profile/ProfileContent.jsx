@@ -157,6 +157,7 @@ const ProfileContent = ({ active }) => {
               </div>
             </div>
           </div>
+
           <br />
           <br />
           <div className="w-full px-5">
@@ -764,9 +765,7 @@ const Address = () => {
   const [open, setOpen] = useState(false);
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
-  const [zipCode, setZipCode] = useState();
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [addressType, setAddressType] = useState("");
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -789,22 +788,11 @@ const Address = () => {
     if (addressType === "" || country === "" || city === "") {
       toast.error("Please fill all the fields!");
     } else {
-      dispatch(
-        updatUserAddress(
-          country,
-          city,
-          address1,
-          address2,
-          zipCode,
-          addressType
-        )
-      );
+      dispatch(updatUserAddress(country, city, zipCode, addressType));
       setOpen(false);
       setCountry("");
       setCity("");
-      setAddress1("");
-      setAddress2("");
-      setZipCode(null);
+      setZipCode("");
       setAddressType("");
     }
   };
@@ -886,30 +874,9 @@ const Address = () => {
                     </div>
 
                     <div className="w-full pb-2">
-                      <label className="block pb-2">Address 1</label>
-                      <input
-                        type="address"
-                        className={`${styles.input}`}
-                        required
-                        value={address1}
-                        onChange={(e) => setAddress1(e.target.value)}
-                      />
-                    </div>
-                    <div className="w-full pb-2">
-                      <label className="block pb-2">Address 2</label>
-                      <input
-                        type="address"
-                        className={`${styles.input}`}
-                        required
-                        value={address2}
-                        onChange={(e) => setAddress2(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="w-full pb-2">
                       <label className="block pb-2">Zip Code</label>
                       <input
-                        type="number"
+                        type="text"
                         className={`${styles.input}`}
                         required
                         value={zipCode}

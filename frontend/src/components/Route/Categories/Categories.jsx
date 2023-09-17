@@ -37,7 +37,6 @@ const Categories = () => {
 
   const submitHandle = (category) => {
     navigate(`/products?category=${category.name}`);
-    // window.location.reload();
   };
 
   const handleScroll = () => {
@@ -74,7 +73,7 @@ const Categories = () => {
       {/* Categories component */}
       <div className="mt-1 lg:mt-6 ">
         <div
-          className={`${styles.section} relative  bg-white lg:p-6 sm:p-2 rounded-lg lg:mb-12 sm:mb-3 `}
+          className={`${styles.section} relative bg-white lg:p-6 sm:p-2 rounded-lg lg:mb-12 sm:mb-3 `}
           id="categories"
         >
           {!hideLeftArrow && (
@@ -86,7 +85,7 @@ const Categories = () => {
           )}
 
           <div
-            className="overflow-x-auto flex space-x-4 border-0 scroll__bar"
+            className="flex space-x-4 overflow-x-hidden"
             id="slider"
             ref={sliderRef}
             style={{ scrollBehavior: "smooth" }}
@@ -96,14 +95,18 @@ const Categories = () => {
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((category, index) => (
                   <div
-                    className="border mb-2 p-3 min-w-[100px] w-fit h-[100px] lg:h-[120px] rounded-md cursor-pointer"
+                    className="mb-2 p-3 min-w-[100px] w-fit h-[100px] lg:h-[120px] rounded-md cursor-pointer"
                     key={index}
                     onClick={() => submitHandle(category)}
                   >
-                    <p className="text-sm">{category.name}</p>
+                    <p className="text-sm">
+                      {category.name.length > 20
+                        ? `${category.name.substring(0, 20)}...`
+                        : category.name}
+                    </p>
                     <img
                       src={`${backend_url}${category?.image}`}
-                      className="lg:w-[170px] sm:w-[100px] object-cover h-[60px] lg:h-[80px]"
+                      className="rounded-full lg:w-[170px] sm:w-[100px] object-cover h-[60px] lg:h-[80px] slider-image"
                       alt=""
                     />
                   </div>

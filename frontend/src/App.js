@@ -126,9 +126,9 @@ const App = () => {
         <Route
           path="/checkout"
           element={
-            <ProtectedRoute>
-              <CheckoutPage />
-            </ProtectedRoute>
+            // <ProtectedRoute>
+            <CheckoutPage />
+            /* </ProtectedRoute> */
           }
         />
         <Route path="/order/success" element={<OrderSuccessPage />} />
@@ -300,14 +300,14 @@ const App = () => {
             </ProtectedAdminRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/shippingadd"
           element={
             <ProtectedAdminRoute>
               <AdminDestination />
             </ProtectedAdminRoute>
           }
-        />
+        /> */}
         <Route
           path="/admin-users"
           element={

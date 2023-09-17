@@ -10,6 +10,7 @@ import Footer from "../Layout/Footer";
 import * as yup from "yup";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
+import { GoogleLogin } from "react-google-login";
 
 const loginSchema = yup.object({
   email: yup
@@ -25,7 +26,10 @@ const Login = () => {
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingg, setLoadingg] = useState(false);
   const location = useLocation();
+  const googleClientId =
+    "997894008076-ls9fbuseh8al9ik3mfm4o86m15871lav.apps.googleusercontent.com";
   // const redirect = location ? location.split("=")[1] : "/";
 
   // useEffect(() => {
@@ -70,6 +74,49 @@ const Login = () => {
     },
   });
 
+  const handleGoogleLoginSuccess = async (response) => {
+    setLoadingg(true);
+    const email = response.profileObj.email;
+    const accessToken = response.accessToken;
+
+    await axios
+      .post(
+        `${server}/user/login-user-google`,
+        {
+          email,
+          accessToken,
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        toast.success("Login Success!");
+        navigate(
+          location?.state?.previousUrl ? location.state.previousUrl : "/"
+        );
+        window.location.reload(true);
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+        setError(true);
+        setLoadingg(false);
+        setErrorMessage(err.response.data.message);
+      });
+    setLoadingg(false);
+  };
+
+  const handleGoogleLoginFailure = (error) => {
+    // Handle login failure or cancellation
+    console.error("Google login error:", error);
+    console.log(error);
+    // if (error.error === "popup_closed_by_user") {
+    //   console.log("Google login canceled by the user");
+    //   // Show a message to the user indicating that the login was canceled
+    //   // You can also provide alternative login options here
+    // } else {
+    //   console.error("Google login error:", error);
+    //   // Handle other Google login errors here
+    // }
+  };
   return (
     <>
       <Header />
@@ -190,8 +237,30 @@ const Login = () => {
                   )}
                 </button>
               </div>
+              <GoogleLogin
+                clientId={googleClientId}
+                buttonText="Sign In with Google"
+                onSuccess={handleGoogleLoginSuccess}
+                onFailure={handleGoogleLoginFailure}
+                cookiePolicy={"single_host_origin"}
+                render={(renderProps) => (
+                  <button
+                    onClick={renderProps.onClick}
+                    disabled={renderProps.disabled}
+                    className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+                  >
+                    {loadingg ? (
+                      <p className="flex">
+                        <Spinner /> signing with Google...
+                      </p>
+                    ) : (
+                      <p className="">Sign In with Google</p>
+                    )}
+                  </button>
+                )}
+              />
               <div className={`${styles.noramlFlex} w-full`}>
-                <h4>Not have any account?</h4>
+                <h4>New User?</h4>
                 <Link to="/sign-up" className="text-blue-600 pl-2">
                   Register
                 </Link>

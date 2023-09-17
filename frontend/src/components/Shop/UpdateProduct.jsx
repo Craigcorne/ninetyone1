@@ -49,6 +49,7 @@ const EditProduct = () => {
       originalPrice: "",
       discountPrice: "",
       stock: "",
+      video: "",
       condition: "",
     },
     validationSchema: editProductSchema,
@@ -63,6 +64,7 @@ const EditProduct = () => {
         const originalPrice = values.originalPrice;
         const discountPrice = values.discountPrice;
         const stock = values.stock;
+        const video = values.video;
         // condition: values.condition,
         const imagesi = images;
 
@@ -75,6 +77,7 @@ const EditProduct = () => {
         newForm.append("description", description);
         newForm.append("category", category);
         newForm.append("tags", tags);
+        newForm.append("video", video);
         newForm.append("originalPrice", originalPrice);
         newForm.append("discountPrice", discountPrice);
         newForm.append("stock", stock);
@@ -124,6 +127,7 @@ const EditProduct = () => {
           discountPrice: productData.discountPrice,
           stock: productData.stock,
           condition: productData.condition,
+          video: productData.video,
         });
 
         setcurrentImages(productData.images); // Set the images array in state
@@ -269,6 +273,21 @@ const EditProduct = () => {
               </div>
             </div>
             <br />
+            <div>
+              <label className="pb-2">video</label>
+              <input
+                type="text"
+                name="video"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.video}
+                className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Enter your product video link..."
+              />
+              <div className="text-red-500">
+                {formik.touched.video && formik.errors.video}
+              </div>
+            </div>
 
             <br />
             <div>

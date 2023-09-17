@@ -32,8 +32,9 @@ const BestSellingPage = () => {
   const categoriesData = useSelector((state) => state.categories);
 
   useEffect(() => {
-    const allProductsData = allProducts ? [...allProducts] : [];
-    const sortedData = allProductsData?.sort((a, b) => b.sold_out - a.sold_out);
+    const sortedData = allProducts
+      ?.slice()
+      .sort((a, b) => b.sold_out - a.sold_out);
     const firstFive = sortedData && sortedData.slice(0, 6);
     setData(firstFive);
   }, [allProducts]);
@@ -44,12 +45,20 @@ const BestSellingPage = () => {
 
   useEffect(() => {
     if (selectedCategory === "") {
-      setData(allProducts?.slice(0, 6));
+      const sortedData = allProducts
+        ?.slice()
+        .sort((a, b) => b.sold_out - a.sold_out);
+      const firstFive = sortedData && sortedData.slice(0, 10);
+      setData(firstFive);
     } else {
       const filteredData = allProducts?.filter(
         (product) => product.category === selectedCategory
       );
-      setData(filteredData?.slice(0, 6));
+      const sortedData = filteredData
+        ?.slice()
+        .sort((a, b) => b.sold_out - a.sold_out);
+      const firstFive = sortedData && sortedData.slice(0, 6);
+      setData(firstFive);
     }
   }, [selectedCategory, allProducts]);
 

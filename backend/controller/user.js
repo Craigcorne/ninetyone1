@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const User = require("../model/user");
 const router = express.Router();
+const { OAuth2Client } = require("google-auth-library");
 const { upload } = require("../multer");
 const ErrorHandler = require("../utils/ErrorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
@@ -136,6 +137,46 @@ router.post(
     }
   })
 );
+router.post(
+  "/login-user-google",
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const { accessToken } = req.body;
+
+      if (!accessToken) {
+        return next(new ErrorHandler("Please provide the access token!", 400));
+      }
+
+      // Google login flow
+      const googleClient = new OAuth2Client(
+        997894008076 -
+          ls9fbuseh8al9ik3mfm4o86m15871lav.apps.googleusercontent.com
+      );
+      const ticket = await googleClient.verifyIdToken({
+        idToken: accessToken,
+        audience:
+          997894008076 -
+          ls9fbuseh8al9ik3mfm4o86m15871lav.apps.googleusercontent.com,
+      });
+      const payload = ticket.getPayload();
+      const googleEmail = payload.email;
+
+      // Check if the user with the provided Google email exists in the database
+      const user = await User.findOne({ email: googleEmail }).select(
+        "+password"
+      );
+
+      if (!user) {
+        return next(new ErrorHandler("User doesn't exist!", 400));
+      }
+
+      // Generate and send the token for successful Google login
+      sendToken(user, 201, res);
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
 
 // load user
 router.get(
@@ -217,6 +258,7 @@ router.put(
 );
 
 // update user avatar
+// update user avatar
 router.put(
   "/update-avatar",
   isAuthenticated,
@@ -227,7 +269,10 @@ router.put(
 
       const existAvatarPath = `uploads/${existsUser.avatar}`;
 
-      fs.unlinkSync(existAvatarPath);
+      // Check if the file exists before attempting to delete it
+      if (fs.existsSync(existAvatarPath)) {
+        fs.unlinkSync(existAvatarPath);
+      }
 
       const fileUrl = path.join(req.file.filename);
 
@@ -240,6 +285,34 @@ router.put(
         user,
       });
     } catch (error) {
+      console.log(error);
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+// remove user avater
+// remove user avatar
+router.put(
+  "/remove-avatar",
+  isAuthenticated,
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const existsUser = await User.findById(req.user.id);
+      const existAvatarPath = `uploads/${existsUser.avatar}`;
+      if (fs.existsSync(existAvatarPath)) {
+        fs.unlinkSync(existAvatarPath);
+      }
+
+      const user = await User.findByIdAndUpdate(req.user.id, {
+        avatar: "defaultavatar.png",
+      });
+      res.status(201).json({
+        success: true,
+        user,
+      });
+    } catch (error) {
+      console.log(error);
       return next(new ErrorHandler(error.message, 500));
     }
   })

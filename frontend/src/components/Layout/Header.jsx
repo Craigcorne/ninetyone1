@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../../styles/styles";
-import { categoriesData, productData } from "../../static/data";
 import {
   AiOutlineHeart,
-  AiOutlineSearch,
+  AiOutlineMessage,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
 import {
@@ -17,8 +16,8 @@ import { BsSearch } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import DropDown from "./DropDown";
 import Navbar from "./Navbar";
-import { useSelector } from "react-redux";
-import { backend_url, server } from "../../server";
+import { useDispatch, useSelector } from "react-redux";
+import { server } from "../../server";
 import Cart from "../cart/Cart";
 import Wishlist from "../Wishlist/Wishlist";
 import { RxCross1 } from "react-icons/rx";
@@ -27,11 +26,11 @@ import axios from "axios";
 import { TbArrowsShuffle2 } from "react-icons/tb";
 import CustomModal from "../CustomModal";
 import { toast } from "react-toastify";
+import { getAllProducts } from "../../redux/actions/product";
 
-const Header = ({ activeHeading }) => {
-  const { isAuthenticated, user } = useSelector((state) => state.user);
+const Header = ({ activeHeading, activeItem }) => {
   const { statements } = useSelector((state) => state.statements);
-  const { isSeller } = useSelector((state) => state.seller);
+  const { isAuthenticated, user } = useSelector((state) => state.user);
   const { wishlist } = useSelector((state) => state.wishlist);
   const { cart } = useSelector((state) => state.cart);
   const { allProducts } = useSelector((state) => state.products);
@@ -45,8 +44,10 @@ const Header = ({ activeHeading }) => {
   const [open, setOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  // const [activeItem, setActiveItem] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const promotionName = statements?.map((i) => i.promotionName);
   const typingName1 = statements?.map((i) => i.typingName1);
@@ -62,7 +63,12 @@ const Header = ({ activeHeading }) => {
       allProducts.filter((product) =>
         product.name.toLowerCase().includes(term.toLowerCase())
       );
+
     setSearchData(filteredProducts);
+  };
+
+  const getAlloProducts = () => {
+    dispatch(getAllProducts());
   };
 
   window.addEventListener("scroll", () => {
@@ -74,9 +80,7 @@ const Header = ({ activeHeading }) => {
   });
 
   const myClickHandler = (e, props) => {
-    // Here you'll do whatever you want to happen when they click
     setOpen(props);
-
     if (!e) {
       var e = window.event;
       e.cancelBubble = true;
@@ -87,7 +91,6 @@ const Header = ({ activeHeading }) => {
   };
 
   const myClickHandler2 = (e, props) => {
-    // Here you'll do whatever you want to happen when they click
     setOpenCart(props);
     setOpenWishlist(false);
     setSearchOpen(false);
@@ -101,7 +104,6 @@ const Header = ({ activeHeading }) => {
     }
   };
   const myClickHandler3 = (e, props) => {
-    // Here you'll do whatever you want to happen when they click
     setOpenWishlist(props);
     setOpenCart(false);
     setSearchOpen(false);
@@ -115,7 +117,7 @@ const Header = ({ activeHeading }) => {
       e.stopPropagation();
     }
   };
-  const myClickHandler4 = (e, props) => {
+  const myClickHandler4 = async (e, props) => {
     setSearchOpen(props);
     setOpenCart(false);
     setOpenWishlist(false);
@@ -128,12 +130,27 @@ const Header = ({ activeHeading }) => {
       e.stopPropagation();
     }
   };
-  const myClickHandler5 = (e) => {
+  const myClickHandler5 = async (e, item) => {
     e.preventDefault();
     setSearchOpen(false);
     setOpenCart(false);
     setOpenWishlist(false);
     navigate("/");
+
+    if (!e) {
+      var e = window.event;
+      e.cancelBubble = true;
+    }
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+  };
+  const myClickHandler6 = async (e, item) => {
+    e.preventDefault();
+    setSearchOpen(false);
+    setOpenCart(false);
+    setOpenWishlist(false);
+    // navigate("/inbox");
 
     if (!e) {
       var e = window.event;
@@ -169,29 +186,21 @@ const Header = ({ activeHeading }) => {
       });
   };
 
+  const handleClick = async (item) => {
+    activeItem = item;
+  };
+
   return (
     <div onClick={dropDown === true ? () => setDropDown(false) : () => {}}>
       <div className="flex p-auto w-full bg-[#3321c8] h-[40px] justify-between py-[7px] px-[5px] lg:py-[22px] lg:px-[60px] lg:h-[70px]">
         <div className="flex ml-2">
           <p className="hidden text-white lg:block">{promotionName}</p>
           <Typed
-            className="text-white lg:ml-20 sm:ml-0"
+            className="text-white lg:ml-20 ml-10"
             strings={[
-              `${
-                typingName1 === undefined
-                  ? "Welcome to Ninety One"
-                  : typingName1
-              }`,
-              `${
-                typingName2 === undefined
-                  ? "Welcome to Ninety One"
-                  : typingName2
-              }`,
-              `${
-                typingName3 === undefined
-                  ? "Welcome to Ninety One"
-                  : typingName3
-              }`,
+              `${typingName1 === undefined ? "Welcome to eShop" : typingName1}`,
+              `${typingName2 === undefined ? "Welcome to eShop" : typingName2}`,
+              `${typingName3 === undefined ? "Welcome to eShop" : typingName3}`,
             ]}
             typeSpeed={40}
             backSpeed={50}
@@ -201,7 +210,7 @@ const Header = ({ activeHeading }) => {
         <p className="hidden text-white lg:block">
           Phone:{" "}
           <a className="text-white" href="tel: +254712012113">
-            +254 741 895 028
+            +254 712 012 113
           </a>
         </p>
       </div>
@@ -210,7 +219,7 @@ const Header = ({ activeHeading }) => {
           <div>
             <Link to="/">
               <img
-                src="https://shopo.quomodothemes.website/assets/images/logo.svg"
+                src="https://res.cloudinary.com/bramuels/image/upload/v1690362886/logo/logo_kfbukz.png"
                 className="w-28 h-28"
                 alt=""
               />
@@ -235,7 +244,7 @@ const Header = ({ activeHeading }) => {
               <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4">
                 <div className="w-full flex items-start-py-3">
                   <img
-                    src="https://res.cloudinary.com/bramuels/image/upload/v1689346467/logo_transparent_mrwg4g.png"
+                    src="https://res.cloudinary.com/bramuels/image/upload/v1690362886/logo/logo_kfbukz.png"
                     alt=""
                     className="w-[40px] h-[40px] mr-[10px]"
                   />
@@ -248,9 +257,14 @@ const Header = ({ activeHeading }) => {
                   searchData.map((i, index) => {
                     return (
                       <Link to={`/product/${i._id}`}>
-                        <div className="w-full flex items-start-py-3">
+                        <div
+                          onClick={() => {
+                            getAlloProducts();
+                          }}
+                          className="w-full flex items-start-py-3"
+                        >
                           <img
-                            src={`${backend_url}${i.images[0]}`}
+                            src={`${i.images[0]?.url}`}
                             alt=""
                             className="w-[40px] h-[40px] mr-[10px]"
                           />
@@ -355,11 +369,7 @@ const Header = ({ activeHeading }) => {
                 {isAuthenticated ? (
                   <Link to="/profile">
                     <img
-                      src={`${backend_url}${user?.avatar}`}
-                      // src={`${backend_url}${user?.avatar}`}
-                      // onError={() =>
-                      //   setImgSrc(`${backend_url}defaultavatar.png`)
-                      // }
+                      src={`${user?.avatar?.url}`}
                       className="w-[35px] h-[35px] rounded-full"
                       alt=""
                     />
@@ -401,13 +411,32 @@ const Header = ({ activeHeading }) => {
           <div>
             <Link to="/">
               <img
-                src="https://shopo.quomodothemes.website/assets/images/logo.svg"
+                src="https://res.cloudinary.com/bramuels/image/upload/v1690362886/logo/logo_kfbukz.png"
                 alt=""
                 className="cursor-pointer h-20 w-20"
               />
             </Link>
           </div>
-          <div>
+          <div className="flex gap-2">
+            <div
+              style={{
+                position: "relative",
+              }}
+            >
+              <AiOutlineHeart
+                style={{
+                  color: "#000",
+                  fontSize: "25px",
+                  margin: "5px",
+                  opacity: ".8",
+                }}
+                onClick={(e) => myClickHandler3(e, true)}
+              />
+
+              <span className="absolute rounded-full flex items-center justify-center bottom-[70%] right-[5%] h-[20px] w-[20px] border-none text-white bg-[#3bc177]">
+                {wishlist.length}
+              </span>
+            </div>
             <div
               className="relative mr-[20px]"
               onClick={(e) => myClickHandler2(e, true)}
@@ -472,7 +501,7 @@ const Header = ({ activeHeading }) => {
                   <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4">
                     <div className="w-full flex items-start-py-3">
                       <img
-                        src="https://res..com/bramuels/image/upload/v1689346467/logo_transparent_mrwg4g.png"
+                        src="https://res.cloudinary.com/bramuels/image/upload/v1690362886/logo/logo_kfbukz.png"
                         alt=""
                         className="w-[40px] h-[40px] mr-[10px]"
                       />
@@ -486,9 +515,14 @@ const Header = ({ activeHeading }) => {
                     {searchData.map((i) => {
                       return (
                         <Link to={`/product/${i._id}`}>
-                          <div className="flex items-center">
+                          <div
+                            onClick={() => {
+                              getAlloProducts();
+                            }}
+                            className="flex items-center"
+                          >
                             <img
-                              src={`${backend_url}${i.images[0]}`}
+                              src={`${i.image_Url[0]?.url}`}
                               alt=""
                               className="w-[50px] mr-2"
                             />
@@ -553,8 +587,7 @@ const Header = ({ activeHeading }) => {
             onClick={(e) => myClickHandler4(e, false)}
             className=" fixed top-0 left-0 right-0 bg-black/[.6] p-4 z-50 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%)] max-h-full appear__smoothly"
           >
-            {/* <div className="w-[90%] absolute top-[20%]"> */}
-            <div className="searchContainer">
+            <div className="w-[90%] absolute top-[20%]">
               <input
                 type="search"
                 placeholder="Search Product..."
@@ -564,56 +597,175 @@ const Header = ({ activeHeading }) => {
                 className="searchInput"
               />
               {searchTerm === "" && (
-                <BsSearch size={24} className="searchIcon" />
+                <BsSearch
+                  size={30}
+                  className="absolute right-2 top-1.5 cursor-pointer"
+                />
               )}
-            </div>
-            {searchData && searchData.length === 0 && searchTerm !== "" ? (
-              <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4">
-                <div className="w-full flex items-start-py-3">
-                  <img
-                    src="https://res.cloudinary.com/bramuels/image/upload/v1689346467/logo_transparent_mrwg4g.png"
-                    alt=""
-                    className="w-[40px] h-[40px] mr-[10px]"
-                  />
-                  <h1>We are sorry, No such Product in our store</h1>
+              {searchData && searchData.length === 0 && searchTerm !== "" ? (
+                <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4 rounded-md">
+                  <div className="w-full flex items-start-py-3">
+                    <img
+                      src="https://res.cloudinary.com/bramuels/image/upload/v1690362886/logo/logo_kfbukz.png"
+                      alt=""
+                      className="w-[40px] h-[40px] mr-[10px]"
+                    />
+                    <h1>We are sorry, No such Product in our store</h1>
+                  </div>
                 </div>
-              </div>
-            ) : searchData && searchData.length !== 0 && searchTerm !== "" ? (
-              <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4">
-                {searchData &&
-                  searchData.map((i, index) => {
-                    return (
-                      <Link
-                        to={`/product/${i._id}`}
-                        onClick={(e) => myClickHandler4(e, false)}
-                      >
-                        <div className="w-full flex items-start-py-3">
-                          <img
-                            src={`${backend_url}${i.images[0]}`}
-                            alt=""
-                            className="w-[40px] h-[40px] mr-[10px]"
-                          />
-                          <h1>
-                            {" "}
-                            {i.name.length > 40
-                              ? i.name.slice(0, 40) + "..."
-                              : i.name}
-                          </h1>
-                        </div>
-                      </Link>
-                    );
-                  })}
-              </div>
-            ) : null}
-            {/* </div> */}
+              ) : searchData && searchData.length !== 0 && searchTerm !== "" ? (
+                <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4 rounded-md">
+                  {searchData &&
+                    searchData.map((i, index) => {
+                      return (
+                        <Link
+                          to={`/product/${i._id}`}
+                          onClick={(e) => myClickHandler4(e, false)}
+                        >
+                          <div
+                            onClick={() => {
+                              getAlloProducts();
+                            }}
+                            className="w-full flex items-start-py-3"
+                          >
+                            <img
+                              src={`${i.images[0]?.url}`}
+                              alt=""
+                              className="w-[40px] h-[40px] mr-[10px]"
+                            />
+                            <h1>
+                              {" "}
+                              {i.name.length > 40
+                                ? i.name.slice(0, 40) + "..."
+                                : i.name}
+                            </h1>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                </div>
+              ) : null}
+            </div>
           </div>
         )}
-        <div className="bottomOption">
+        {/* bottom tab */}
+        <div className="navigation">
+          <ul>
+            <li
+              className={`list ${activeItem === "home" ? "active" : ""}`}
+              onClick={(e) => myClickHandler5(e, "home")}
+              style={{ "--clr": "#f44336" }}
+            >
+              <a href="#">
+                <span className="icon">
+                  <BiHomeAlt2
+                    style={{
+                      color: "#000",
+                      fontSize: "25px",
+                      margin: "15px",
+                      opacity: ".8",
+                      alignItems: "center",
+                    }}
+                  />{" "}
+                </span>
+              </a>
+            </li>
+            <li
+              className={`list ${activeItem === "person" ? "active" : ""}`}
+              onClick={(e) => myClickHandler6(e, "person")}
+              style={{ "--clr": "#ffa117" }}
+            >
+              <Link to="/inbox">
+                <span className="icon">
+                  <AiOutlineMessage
+                    style={{
+                      color: "#000",
+                      fontSize: "25px",
+                      margin: "15px",
+                      opacity: ".8",
+                      alignItems: "center",
+                    }}
+                  />{" "}
+                </span>
+              </Link>
+            </li>
+            <li
+              className={`list ${activeItem === "chatbubble" ? "active" : ""}`}
+              onClick={(e) => myClickHandler4(e, true)}
+              // onClick={() => handleClick("chatbubble")}
+              style={{ "--clr": "#0fc70f" }}
+            >
+              <a href="#">
+                <span className="icon">
+                  <BsSearch
+                    onClick={() => activeItem === "chatbubble"}
+                    style={{
+                      color: "#000",
+                      fontSize: "25px",
+                      margin: "15px",
+                      opacity: ".8",
+                    }}
+                  />{" "}
+                </span>
+              </a>
+            </li>
+            <li
+              className={`list ${activeItem === "camera" ? "active" : ""}`}
+              onClick={() => handleClick("camera")}
+              style={{ "--clr": "#2196f3" }}
+            >
+              <Link to="/compare-products">
+                <span className="icon">
+                  <TbArrowsShuffle2
+                    style={{
+                      color: "#000",
+                      fontSize: "25px",
+                      margin: "15px",
+                      opacity: ".8",
+                    }}
+                  />{" "}
+                </span>
+              </Link>
+            </li>
+            <li
+              className={`list ${activeItem === "settings" ? "active" : ""}`}
+              onClick={() => handleClick("settings")}
+              style={{ "--clr": "#b145e9" }}
+            >
+              <a href="#">
+                <span className="icon">
+                  <div>
+                    {isAuthenticated ? (
+                      <div>
+                        <Link to="/profile">
+                          <img
+                            src={`${user?.avatar?.url}`}
+                            alt=""
+                            className="w-[30px] h-[30px] m-[13px] rounded-full border-[3px] border-[#0eae88]"
+                          />
+                        </Link>
+                      </div>
+                    ) : (
+                      <Link to="/login">
+                        <CgProfile
+                          size={34}
+                          color="rgb(0 0 0 / 83%)"
+                          className="m-[12px]"
+                        />
+                      </Link>
+                    )}
+                  </div>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        {/* <div className="bottomOption">
           <div>
             <BiHomeAlt2
               style={{
                 color: "#000",
-                fontSize: "30px",
+                fontSize: "25px",
                 margin: "5px",
                 opacity: ".8",
               }}
@@ -621,31 +773,28 @@ const Header = ({ activeHeading }) => {
             />
           </div>
 
+         
           <div
             style={{
               position: "relative",
             }}
           >
-            <AiOutlineHeart
+            <AiOutlineMessage
               style={{
                 color: "#000",
-                fontSize: "30px",
+                fontSize: "25px",
                 margin: "5px",
                 opacity: ".8",
               }}
-              onClick={(e) => myClickHandler3(e, true)}
+              onClick={(e) => myClickHandler6(e, true)}
             />
-
-            <span className="absolute rounded-full flex items-center justify-center bottom-[70%] right-[5%] h-[20px] w-[20px] border-none text-white bg-[#3bc177]">
-              {wishlist.length}
-            </span>
           </div>
 
           <div onClick={(e) => myClickHandler4(e, true)}>
             <BsSearch
               style={{
                 color: "#000",
-                fontSize: "30px",
+                fontSize: "25px",
                 margin: "5px",
                 opacity: ".8",
               }}
@@ -655,7 +804,7 @@ const Header = ({ activeHeading }) => {
             <TbArrowsShuffle2
               style={{
                 color: "#000",
-                fontSize: "30px",
+                fontSize: "25px",
                 margin: "5px",
                 opacity: ".8",
               }}
@@ -666,19 +815,19 @@ const Header = ({ activeHeading }) => {
               <div>
                 <Link to="/profile">
                   <img
-                    src={`${backend_url}${user?.avatar}`}
+                    src={`${user?.avatar?.url}`}
                     alt=""
-                    className="w-[44px] h-[44px] rounded-full border-[3px] border-[#0eae88]"
+                    className="w-[30px] h-[30px] rounded-full border-[3px] border-[#0eae88]"
                   />
                 </Link>
               </div>
             ) : (
               <Link to="/login">
-                <CgProfile size={40} color="rgb(0 0 0 / 83%)" />
+                <CgProfile size={44} color="rgb(0 0 0 / 83%)" />
               </Link>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -1,5 +1,3 @@
-// State schema
-
 const mongoose = require("mongoose");
 
 const stateSchema = new mongoose.Schema({
@@ -7,12 +5,13 @@ const stateSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  towns: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Town",
-    },
-  ],
+  country: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Country",
+    required: true,
+  },
 });
 
 const State = mongoose.model("State", stateSchema);
+
+module.exports = State;

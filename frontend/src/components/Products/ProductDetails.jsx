@@ -307,6 +307,11 @@ const ProductDetails = ({ data }) => {
                       </div>
                     ))}
                 </div>
+                <br />
+
+                <div className="videlink">
+                  <a href={data.video}> Video Product Link</a>
+                </div>
               </div>
               <div className="w-full 800px:w-[50%] pt-5">
                 <h1 className={`${styles.productTitle}`}>{data.name}</h1>
